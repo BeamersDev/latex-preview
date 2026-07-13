@@ -27,11 +27,9 @@ export default function SymbolBar() {
         idx++;
         const inner = match.slice(1, -1);
         const delim = match[0]; // '{' or '['
-        if (delim === '{') {
-          return inner ? `{$\{${idx}:${inner}}` : `{$\{${idx}}`;
-        } else {
-          return inner ? `[$\{${idx}:${inner}}` : `[$\{${idx}}`;
-        }
+        // Build field manually: ${idx:inner} — pure string concat to avoid template escaping issues
+        const field = '${' + idx + (inner ? ':' + inner : '') + '}';
+        return delim + field + (delim === '{' ? '}' : ']');
       });
       window.dispatchEvent(new CustomEvent('insert-snippet', { detail: snippet }));
     } else {
