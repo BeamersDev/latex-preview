@@ -23,6 +23,7 @@ import {
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { AUTOCOMPLETE_COMMANDS } from '@/utils/symbolDb';
 import { insertSnippet, snippetExtension } from '@/utils/snippet';
+import { checkLatexSyntax } from '@/utils/latex';
 import type { EditorPosition } from '@/types';
 
 interface EditorProps {
@@ -201,6 +202,15 @@ export default function Editor({
           insertTo = skip;
         }
       }
+      // Syntax check: simulate insertion and validate
+      const docBefore = state.doc.toString();
+      const expected = docBefore.slice(0, insertFrom) + latex + docBefore.slice(insertTo);
+      const syntaxErr = checkLatexSyntax(expected);
+      if (syntaxErr) {
+        window.dispatchEvent(new CustomEvent('syntax-warning', { detail: syntaxErr }));
+        console.warn('Syntax check failed:', syntaxErr);
+        return;
+      }
       
       view.dispatch({
         changes: { from: insertFrom, to: insertTo, insert: latex },
@@ -241,6 +251,14 @@ export default function Editor({
           from = skip;
           to = skip;
         }
+      }
+      // Syntax check for snippet insertion
+      const docBefore2 = state.doc.toString();
+      const expected2 = docBefore2.slice(0, from) + template.replace(/\$\{?\d+(?::([^}]*))?\}?/g, (_m, def) => def ?? '') + docBefore2.slice(to);
+      const syntaxErr2 = checkLatexSyntax(expected2);
+      if (syntaxErr2) {
+        window.dispatchEvent(new CustomEvent('syntax-warning', { detail: syntaxErr2 }));
+        return;
       }
       insertSnippet(view, template, from, to);
     };

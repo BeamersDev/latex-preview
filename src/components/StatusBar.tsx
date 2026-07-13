@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { EditorPosition } from '@/types';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { THEMES } from '@/themes';
@@ -11,11 +12,25 @@ interface StatusBarProps {
 export default function StatusBar({ position, errorCount, katexLoaded }: StatusBarProps) {
   const { themeName } = useThemeContext();
   const themeLabel = THEMES.find((t) => t.name === themeName)?.label ?? themeName;
+  const [warning, setWarning] = useState('');
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setWarning((e as CustomEvent<string>).detail);
+      setTimeout(() => setWarning(''), 3000);
+    };
+    window.addEventListener('syntax-warning', handler as EventListener);
+    return () => window.removeEventListener('syntax-warning', handler as EventListener);
+  }, []);
 
   return (
     <div className="statusbar">
       <div className="statusbar-left">
-        <span className="statusbar-item">行 {position.line}, 列 {position.col}</span>
+        {warning ? (
+          <span className="statusbar-item statusbar-error">{warning}</span>
+        ) : (
+          <span className="statusbar-item">行 {position.line}, 列 {position.col}</span>
+        )}
       </div>
       <div className="statusbar-center">
         <span className="statusbar-item">主题: {themeLabel}</span>
