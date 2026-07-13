@@ -1,0 +1,52 @@
+{
+  "name": "latex-preview",
+  "version": "1.0.0",
+  "description": "LaTeX Preview — 桌面端公式编辑器",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist node_modules/.vite"
+  },
+  "keywords": [
+    "latex",
+    "katex",
+    "editor",
+    "tauri"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/commands": "^6.10.4",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.6",
+    "@tauri-apps/api": "^2.11.1",
+    "codemirror": "^6.0.2",
+    "html-to-image": "^1.11.11",
+    "katex": "^0.16.9",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@codemirror/lang-xml": "^6.1.0",
+    "@tauri-apps/cli": "^2.11.4",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^16.0.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "@vitest/coverage-v8": "^3.2.7",
+    "jsdom": "^24.0.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4",
+    "vitest": "^3.0.0"
+  }
+}
