@@ -19,6 +19,11 @@ export default function SymbolBar() {
   };
 
   const handleSymbolClick = (latex: string) => {
+    // Long templates (with \\ for line breaks like matrices) → plain insert
+    if (latex.includes('\\\\')) {
+      window.dispatchEvent(new CustomEvent('insert-latex', { detail: latex }));
+      return;
+    }
     // Templates with {} or [] get tab-stop snippet insertion
     if (latex.includes('{') || latex.includes('[')) {
       // Convert {a} to {${1:a}} and [n] to [${1:n}] — keeps braces/brackets
