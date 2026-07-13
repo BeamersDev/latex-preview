@@ -7,7 +7,14 @@ import Toolbar from '@/components/Toolbar';
 import StatusBar from '@/components/StatusBar';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { useSession } from '@/hooks/useSession';
-import { exportAsPng, exportAsSvg, downloadBlob, copySvgToClipboard } from '@/utils/export';
+import {
+  exportAsPng,
+  exportAsSvg,
+  downloadBlob,
+  copyPngToClipboard,
+  copySvgToClipboard,
+  extractSvgString,
+} from '@/utils/export';
 import type { EditorPosition } from '@/types';
 
 const DEFAULT_LATEX = '\\frac{x^2}{y}';
@@ -57,12 +64,26 @@ export default function App() {
   const handleExportSvg = useCallback(async () => {
     const previewEl = previewRef.current;
     if (!previewEl) return;
-    const svg = exportAsSvg(previewEl);
+    const dataUrl = await exportAsSvg(previewEl);
+    if (dataUrl) {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      downloadBlob(blob, 'latex-formula.svg');
+    }
+  }, []);
+
+  const handleCopyPng = useCallback(async () => {
+    const previewEl = previewRef.current;
+    if (!previewEl) return;
+    await copyPngToClipboard(previewEl);
+  }, []);
+
+  const handleCopySvg = useCallback(async () => {
+    const previewEl = previewRef.current;
+    if (!previewEl) return;
+    const svg = extractSvgString(previewEl);
     if (svg) {
-      const success = await copySvgToClipboard(svg);
-      if (!success) {
-        downloadBlob(new Blob([svg], { type: 'image/svg+xml' }), 'latex-formula.svg');
-      }
+      await copySvgToClipboard(svg);
     }
   }, []);
 
@@ -86,6 +107,8 @@ export default function App() {
         layout={settings.layout}
         onExportPng={handleExportPng}
         onExportSvg={handleExportSvg}
+        onCopyPng={handleCopyPng}
+        onCopySvg={handleCopySvg}
       />
 
       <div className="main-content">

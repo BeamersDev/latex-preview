@@ -42,7 +42,7 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
         html = katex.renderToString(latex.trim(), {
           throwOnError: true,
           displayMode: false,
-          output: 'html',
+          output: 'svg' as any,
         });
       } catch (err) {
         const msg = parseKaTeXError(err as Error);
@@ -73,7 +73,7 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
             html += katex.renderToString(renderContent.trim(), {
               throwOnError: true,
               displayMode: true,
-              output: 'html',
+              output: 'svg' as any,
             });
           } catch (err) {
             const msg = parseKaTeXError(err as Error);

@@ -401,13 +401,6 @@ html, body, #root {
   letter-spacing: -0.3px;
 }
 
-.toolbar-center {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0 auto;
-}
-
 .toolbar-right {
   display: flex;
   align-items: center;
@@ -442,6 +435,51 @@ html, body, #root {
 .toolbar-warning {
   font-size: 11px;
   color: var(--warning);
+}
+
+/* --- Export Dropdown --- */
+.export-dropdown {
+  position: relative;
+}
+
+.export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--modal-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  min-width: 150px;
+  padding: 4px;
+  margin-top: 4px;
+}
+
+.export-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.export-menu-item:hover {
+  background: var(--bg-hover);
+}
+
+.export-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 8px;
 }
 
 /* --- Theme Selector --- */
@@ -717,6 +755,36 @@ html, body, #root {
 .editor-container .cm-selectionBackground {
   background: var(--accent);
   opacity: 0.2;
+}
+
+.editor-container .cm-tooltip {
+  background: var(--modal-bg);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.editor-container .cm-tooltip-autocomplete {
+  background: var(--modal-bg);
+}
+
+.editor-container .cm-tooltip-autocomplete ul li[aria-selected] {
+  background: var(--accent);
+  color: var(--btn-primary-text);
+}
+
+.editor-container .cm-tooltip-autocomplete ul li {
+  padding: 2px 6px;
+}
+
+.editor-container .cm-completionLabel {
+  color: var(--text-primary);
+}
+
+.editor-container .cm-completionDetail {
+  color: var(--text-secondary);
+  font-size: 11px;
 }
 
 /* --- Preview Pane --- */

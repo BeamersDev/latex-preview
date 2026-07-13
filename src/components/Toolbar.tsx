@@ -8,12 +8,22 @@ interface ToolbarProps {
   layout: 'horizontal' | 'vertical';
   onExportPng: () => void;
   onExportSvg: () => void;
+  onCopyPng: () => void;
+  onCopySvg: () => void;
 }
 
-export default function Toolbar({ onLayoutToggle, layout, onExportPng, onExportSvg }: ToolbarProps) {
+export default function Toolbar({
+  onLayoutToggle,
+  layout,
+  onExportPng,
+  onExportSvg,
+  onCopyPng,
+  onCopySvg,
+}: ToolbarProps) {
   const { themeName, setTheme } = useThemeContext();
   const { settings, updateSettings, resetSettings } = useSettingsContext();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [localSettings, setLocalSettings] = useState({ ...settings });
 
@@ -42,19 +52,52 @@ export default function Toolbar({ onLayoutToggle, layout, onExportPng, onExportS
         <div className="toolbar-left">
           <span className="toolbar-brand">LaTeX Preview</span>
         </div>
-        <div className="toolbar-center">
+
+        <div className="toolbar-right">
           <button className="toolbar-btn" onClick={onLayoutToggle} title="切换布局">
             {layout === 'horizontal' ? '⇔ 左右' : '⇕ 上下'}
           </button>
 
           <div className="toolbar-separator" />
 
-          <button className="toolbar-btn" onClick={onExportPng} title="导出为 PNG">
-            📷 PNG
-          </button>
-          <button className="toolbar-btn" onClick={onExportSvg} title="导出为 SVG">
-            🎨 SVG
-          </button>
+          <div
+            className="export-dropdown"
+            onMouseEnter={() => setShowExportMenu(true)}
+            onMouseLeave={() => setShowExportMenu(false)}
+          >
+            <button className="toolbar-btn" title="导出 / 复制">
+              📤 导出
+            </button>
+            {showExportMenu && (
+              <div className="export-menu">
+                <button
+                  className="export-menu-item"
+                  onClick={() => { onCopyPng(); setShowExportMenu(false); }}
+                >
+                  📋 复制 PNG
+                </button>
+                <button
+                  className="export-menu-item"
+                  onClick={() => { onCopySvg(); setShowExportMenu(false); }}
+                >
+                  📋 复制 SVG
+                </button>
+                <div className="export-menu-divider" />
+                <button
+                  className="export-menu-item"
+                  onClick={() => { onExportPng(); setShowExportMenu(false); }}
+                >
+                  💾 导出 PNG
+                </button>
+                <button
+                  className="export-menu-item"
+                  onClick={() => { onExportSvg(); setShowExportMenu(false); }}
+                >
+                  💾 导出 SVG
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="toolbar-separator" />
 
@@ -88,8 +131,6 @@ export default function Toolbar({ onLayoutToggle, layout, onExportPng, onExportS
             )}
           </div>
 
-        </div>
-        <div className="toolbar-right">
           <button
             className="toolbar-btn"
             onClick={() => {
@@ -139,6 +180,7 @@ export default function Toolbar({ onLayoutToggle, layout, onExportPng, onExportS
                     value={localSettings.dpi}
                     onChange={(e) => setLocalSettings({ ...localSettings, dpi: Number(e.target.value) })}
                   />
+                  px
                 </label>
               </div>
 

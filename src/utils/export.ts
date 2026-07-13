@@ -1,5 +1,5 @@
 /**
- * 导出工具函数：PNG / SVG 导出
+ * 导出工具函数：PNG / SVG 导出与剪贴板复制
  */
 
 /**
@@ -26,21 +26,14 @@ export async function exportAsPng(
 }
 
 /**
- * 从 KaTeX 渲染的 SVG 元素中提取 SVG 字符串
+ * 将 HTML 元素导出为 SVG 数据 URL（使用 html-to-image）
  */
-export function exportAsSvg(element: HTMLElement): string | null {
+export async function exportAsSvg(element: HTMLElement): Promise<string | null> {
   try {
-    const svgEl = element.querySelector('svg');
-    if (!svgEl) return null;
-    // Create a clone to avoid modifying the original
-    const clone = svgEl.cloneNode(true) as SVGSVGElement;
-    // Ensure proper attributes
-    const width = svgEl.getAttribute('width') || '100%';
-    const height = svgEl.getAttribute('height') || '100%';
-    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    clone.setAttribute('width', width);
-    clone.setAttribute('height', height);
-    return new XMLSerializer().serializeToString(clone);
+    const { toSvg } = await import('html-to-image');
+    return await toSvg(element, {
+      cacheBust: true,
+    });
   } catch (err) {
     console.error('SVG export failed:', err);
     return null;
@@ -48,19 +41,44 @@ export function exportAsSvg(element: HTMLElement): string | null {
 }
 
 /**
- * 复制内容到剪贴板
+ * 从 KaTeX 渲染的 SVG 元素中提取 SVG 字符串
+ * 用于复制 SVG 到剪贴板
  */
-export async function copyToClipboard(
-  content: string,
-  format: 'text/plain' | 'image/png',
-): Promise<boolean> {
+export function extractSvgString(element: HTMLElement): string | null {
   try {
-    if (format === 'text/plain') {
-      await navigator.clipboard.writeText(content);
-      return true;
-    }
-    return false;
-  } catch {
+    const svgEl = element.querySelector('svg');
+    if (!svgEl) return null;
+    const clone = svgEl.cloneNode(true) as SVGSVGElement;
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    const width = svgEl.getAttribute('width') || '100%';
+    const height = svgEl.getAttribute('height') || '100%';
+    clone.setAttribute('width', width);
+    clone.setAttribute('height', height);
+    return new XMLSerializer().serializeToString(clone);
+  } catch (err) {
+    console.error('SVG extraction failed:', err);
+    return null;
+  }
+}
+
+/**
+ * 复制 PNG 到剪贴板（使用 html-to-image toBlob）
+ */
+export async function copyPngToClipboard(element: HTMLElement): Promise<boolean> {
+  try {
+    const { toBlob } = await import('html-to-image');
+    const blob = await toBlob(element, {
+      quality: 1,
+      pixelRatio: 2,
+      cacheBust: true,
+    });
+    if (!blob) return false;
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': blob }),
+    ]);
+    return true;
+  } catch (err) {
+    console.error('Copy PNG failed:', err);
     return false;
   }
 }
@@ -83,6 +101,24 @@ export async function copySvgToClipboard(
   } catch {
     // Fallback to plain text
     return copyToClipboard(svgString, 'text/plain');
+  }
+}
+
+/**
+ * 复制内容到剪贴板
+ */
+export async function copyToClipboard(
+  content: string,
+  format: 'text/plain' | 'image/png',
+): Promise<boolean> {
+  try {
+    if (format === 'text/plain') {
+      await navigator.clipboard.writeText(content);
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
   }
 }
 
