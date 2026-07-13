@@ -179,16 +179,27 @@ export default function Editor({
       let insertFrom = state.selection.main.from;
       let insertTo = state.selection.main.to;
       if (latex.startsWith('\\') && insertFrom === insertTo) {
-        // Check if cursor is inside or right after a \command
+        // Check if cursor is inside a \command with arguments
         const doc = state.doc.toString();
-        const before = doc.slice(Math.max(0, pos - 50), pos);
+        const before = doc.slice(Math.max(0, pos - 80), pos);
         const lastBS = before.lastIndexOf('\\');
         if (lastBS !== -1 && /^[a-zA-Z]/.test(before.slice(lastBS + 1))) {
-          // Cursor is inside a \command - skip to end of the command
-          const after = doc.slice(pos, Math.min(doc.length, pos + 30));
-          const trailing = (after.match(/^[a-zA-Z]*/) || [''])[0];
-          insertFrom = pos + trailing.length;
-          insertTo = pos + trailing.length;
+          // Skip to end of command word
+          let skip = pos;
+          const afterAll = doc.slice(pos, Math.min(doc.length, pos + 80));
+          const wordMatch = afterAll.match(/^[a-zA-Z]*/);
+          if (wordMatch) skip += wordMatch[0].length;
+          // Then skip any [...] and {...} groups attached to the command
+          const rest = doc.slice(skip, Math.min(doc.length, skip + 80));
+          const argRegex = /^(\[[^\]]*\]|\{[^}]*\})\s*/g;
+          argRegex.lastIndex = 0;
+          let m;
+          while ((m = argRegex.exec(rest)) !== null) {
+            skip += m[0].length;
+            argRegex.lastIndex = 0;
+          }
+          insertFrom = skip;
+          insertTo = skip;
         }
       }
       
@@ -214,13 +225,23 @@ export default function Editor({
       let to = state.selection.main.to;
       if (from === to) {
         const doc = state.doc.toString();
-        const before = doc.slice(Math.max(0, pos - 50), pos);
+        const before = doc.slice(Math.max(0, pos - 80), pos);
         const lastBS = before.lastIndexOf('\\');
         if (lastBS !== -1 && /^[a-zA-Z]/.test(before.slice(lastBS + 1))) {
-          const after = doc.slice(pos, Math.min(doc.length, pos + 30));
-          const trailing = (after.match(/^[a-zA-Z]*/) || [''])[0];
-          from = pos + trailing.length;
-          to = pos + trailing.length;
+          let skip = pos;
+          const afterAll = doc.slice(pos, Math.min(doc.length, pos + 80));
+          const wordMatch = afterAll.match(/^[a-zA-Z]*/);
+          if (wordMatch) skip += wordMatch[0].length;
+          const rest = doc.slice(skip, Math.min(doc.length, skip + 80));
+          const argRegex = /^(\[[^\]]*\]|\{[^}]*\})\s*/g;
+          argRegex.lastIndex = 0;
+          let m;
+          while ((m = argRegex.exec(rest)) !== null) {
+            skip += m[0].length;
+            argRegex.lastIndex = 0;
+          }
+          from = skip;
+          to = skip;
         }
       }
       insertSnippet(view, template, from, to);
