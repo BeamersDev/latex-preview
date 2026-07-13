@@ -126,7 +126,7 @@ export default function Editor({
             }
             if (event.ctrlKey && event.key === 's') {
               event.preventDefault();
-              window.dispatchEvent(new CustomEvent('export-png'));
+              window.dispatchEvent(new CustomEvent('export-file'));
             }
           },
         }),

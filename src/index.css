@@ -749,6 +749,43 @@ html, body, #root {
   opacity: 0.4;
 }
 
+/* Ctrl+S export picker */
+.export-picker {
+  background: var(--modal-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 160px;
+}
+.export-picker-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.export-picker-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+}
+.export-picker-btn:hover {
+  background: var(--accent);
+  color: var(--btn-primary-text);
+}
+.export-picker-cancel {
+  text-align: center;
+  opacity: 0.7;
+}
+
 .editor-container .cm-tooltip {
   background: var(--modal-bg);
   border: 1px solid var(--border);

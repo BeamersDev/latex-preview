@@ -103,6 +103,14 @@ export default function App() {
     return () => window.removeEventListener('export-png', pngHandler);
   }, [handleExportPng]);
 
+  // Ctrl+S: show file type selector
+  const [showExportPicker, setShowExportPicker] = useState(false);
+  useEffect(() => {
+    const handler = () => setShowExportPicker(true);
+    window.addEventListener('export-file', handler);
+    return () => window.removeEventListener('export-file', handler);
+  }, []);
+
   // Divider drag logic
   const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -182,6 +190,22 @@ export default function App() {
       />
 
       <SymbolSearch />
+      {showExportPicker && (
+        <div className="modal-overlay" onClick={() => setShowExportPicker(false)}>
+          <div className="export-picker" onClick={(e) => e.stopPropagation()}>
+            <div className="export-picker-title">导出为</div>
+            <button className="export-picker-btn" onClick={() => { setShowExportPicker(false); handleExportPng(); }}>
+              📷 PNG
+            </button>
+            <button className="export-picker-btn" onClick={() => { setShowExportPicker(false); handleExportSvg(); }}>
+              🎨 SVG
+            </button>
+            <button className="export-picker-btn export-picker-cancel" onClick={() => setShowExportPicker(false)}>
+              取消
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
