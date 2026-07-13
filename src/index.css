@@ -583,29 +583,22 @@ html, body, #root {
 
 /* --- Symbol Bar --- */
 .symbol-bar {
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  height: 36px;
-  min-height: 36px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
-  gap: 2px;
   flex-shrink: 0;
 }
 
-/* 符号栏的横向滚动容器——单独隔离overflow */
-.symbol-bar-scroll {
+.symbol-bar-tabs {
   display: flex;
   align-items: center;
+  padding: 0 8px;
+  height: 32px;
   gap: 2px;
   overflow-x: auto;
-  flex: 1;
-  height: 100%;
+  flex-shrink: 0;
 }
 
-.symbol-bar::-webkit-scrollbar,
-.symbol-bar-scroll::-webkit-scrollbar {
+.symbol-bar-tabs::-webkit-scrollbar {
   height: 4px;
 }
 
@@ -613,12 +606,13 @@ html, body, #root {
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-secondary);
-  padding: 3px 10px;
+  padding: 2px 10px;
   font-size: 12px;
   border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .symbol-bar-btn:hover {
@@ -629,42 +623,42 @@ html, body, #root {
 .symbol-bar-btn.active {
   background: var(--accent);
   color: var(--btn-primary-text);
+  border-color: var(--accent);
 }
 
-.symbol-bar-dropdown {
-  background: var(--modal-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+/* Symbol panel: appears below tabs, above editor/preview */
+.symbol-bar-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
   padding: 8px;
-  max-height: 280px;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border);
+  max-height: 120px;
   overflow-y: auto;
 }
 
-.symbol-bar-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 2px;
-}
-
 .symbol-bar-item {
-  background: transparent;
-  border: 1px solid transparent;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   color: var(--text-primary);
-  padding: 6px 4px;
-  font-size: 16px;
-  text-align: center;
-  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
   border-radius: 4px;
+  cursor: pointer;
   font-family: 'Times New Roman', serif;
-  transition: all 0.1s ease;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .symbol-bar-item:hover {
-  background: var(--bg-hover);
-  border-color: var(--border);
+  background: var(--accent);
+  color: var(--btn-primary-text);
+  border-color: var(--accent);
 }
 
+/* Remove old dropdown styles */
+.symbol-bar-dropdown { display: none; }
 /* --- Editor & Preview Container --- */
 .editor-preview-container {
   display: flex;
