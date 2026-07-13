@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Editor from '@/components/Editor';
 import Preview from '@/components/Preview';
-import SymbolPanel from '@/components/SymbolPanel';
+import SymbolBar from '@/components/SymbolBar';
 import SymbolSearch from '@/components/SymbolSearch';
 import Toolbar from '@/components/Toolbar';
 import StatusBar from '@/components/StatusBar';
@@ -21,7 +21,6 @@ const DEFAULT_LATEX = '\\frac{x^2}{y}';
 
 export default function App() {
   const [latex, setLatex] = useState(DEFAULT_LATEX);
-  const [symbolCollapsed, setSymbolCollapsed] = useState(false);
   const [cursorPos, setCursorPos] = useState<EditorPosition>({ line: 1, col: 1 });
   const [errorCount, setErrorCount] = useState(0);
   const [katexReady, setKatexReady] = useState(false);
@@ -111,12 +110,9 @@ export default function App() {
         onCopySvg={handleCopySvg}
       />
 
-      <div className="main-content">
-        <SymbolPanel
-          collapsed={symbolCollapsed}
-          onToggle={() => setSymbolCollapsed(!symbolCollapsed)}
-        />
+      <SymbolBar />
 
+      <div className="main-content">
         <div className="editor-preview-container">
           <div className="editor-pane">
             <div className="pane-header">编辑器</div>

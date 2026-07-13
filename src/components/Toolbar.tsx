@@ -63,13 +63,20 @@ export default function Toolbar({
           <div
             className="export-dropdown"
             onMouseEnter={() => setShowExportMenu(true)}
-            onMouseLeave={() => setShowExportMenu(false)}
+            onMouseLeave={() => {
+              // Small delay so user can reach the menu from the button
+              setTimeout(() => setShowExportMenu(false), 200);
+            }}
           >
             <button className="toolbar-btn" title="导出 / 复制">
               📤 导出
             </button>
-            {showExportMenu && (
-              <div className="export-menu">
+            <div
+              className="export-menu"
+              onMouseEnter={() => setShowExportMenu(true)}
+              onMouseLeave={() => setShowExportMenu(false)}
+              style={{ display: showExportMenu ? 'block' : 'none' }}
+            >
                 <button
                   className="export-menu-item"
                   onClick={() => { onCopyPng(); setShowExportMenu(false); }}
@@ -96,7 +103,6 @@ export default function Toolbar({
                   💾 导出 SVG
                 </button>
               </div>
-            )}
           </div>
 
           <div className="toolbar-separator" />

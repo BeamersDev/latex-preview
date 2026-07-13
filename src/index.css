@@ -571,95 +571,71 @@ html, body, #root {
   height: 50%;
 }
 
-/* --- Symbol Panel --- */
-.symbol-panel {
-  width: 200px;
-  background: var(--panel-bg);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.symbol-panel--collapsed {
-  width: 32px;
+/* --- Symbol Bar --- */
+.symbol-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.symbol-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
+  padding: 0 8px;
+  height: 36px;
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
-}
-
-.symbol-panel-title {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-}
-
-.symbol-toggle {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 16px;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.symbol-toggle:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-}
-
-.symbol-categories {
-  display: flex;
-  flex-wrap: wrap;
   gap: 2px;
-  padding: 6px;
-  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-x: auto;
 }
 
-.symbol-category-btn {
+.symbol-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.symbol-bar-btn {
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   color: var(--text-secondary);
-  padding: 2px 6px;
-  font-size: 11px;
-  border-radius: 3px;
+  padding: 3px 10px;
+  font-size: 12px;
+  border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
-.symbol-category-btn:hover {
+.symbol-bar-btn:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
 }
 
-.symbol-category-btn.active {
+.symbol-bar-btn.active {
   background: var(--accent);
   color: var(--btn-primary-text);
-  border-color: var(--accent);
 }
 
-.symbol-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-  gap: 2px;
-  padding: 6px;
+.symbol-bar-category {
+  position: relative;
+}
+
+.symbol-bar-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--modal-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  padding: 8px;
+  max-height: 280px;
   overflow-y: auto;
-  flex: 1;
 }
 
-.symbol-btn {
+.symbol-bar-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
+}
+
+.symbol-bar-item {
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-primary);
@@ -668,11 +644,11 @@ html, body, #root {
   text-align: center;
   cursor: pointer;
   border-radius: 4px;
-  transition: all 0.1s ease;
   font-family: 'Times New Roman', serif;
+  transition: all 0.1s ease;
 }
 
-.symbol-btn:hover {
+.symbol-bar-item:hover {
   background: var(--bg-hover);
   border-color: var(--border);
 }
@@ -771,7 +747,8 @@ html, body, #root {
 
 .editor-container .cm-tooltip-autocomplete ul li[aria-selected] {
   background: var(--accent);
-  color: var(--btn-primary-text);
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .editor-container .cm-tooltip-autocomplete ul li {
@@ -800,9 +777,23 @@ html, body, #root {
   padding: 20px;
   overflow: auto;
   display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 8px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Larger base KaTeX size in preview */
+.preview-content .katex {
+  font-size: 2em;
+}
+
+.preview-content .katex-display {
+  margin: 0.5em 0;
+  text-align: center;
+}
+
+.preview-content .katex-display > .katex {
+  font-size: 2.2em;
 }
 
 .preview-errors {

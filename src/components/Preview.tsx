@@ -114,8 +114,7 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
         // Update zoom via settings context or local
         const previewEl = containerRef.current;
         if (previewEl) {
-          previewEl.style.transform = `scale(${newZoom})`;
-          previewEl.style.transformOrigin = 'top left';
+          previewEl.style.zoom = `${newZoom}`;
         }
       }
     },
