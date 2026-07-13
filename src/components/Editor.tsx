@@ -14,6 +14,7 @@ import {
   closeBracketsKeymap,
   CompletionContext,
   autocompletion,
+  snippetKeymap,
 } from '@codemirror/autocomplete';
 import {
   defaultKeymap,
@@ -22,7 +23,7 @@ import {
 } from '@codemirror/commands';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { AUTOCOMPLETE_COMMANDS } from '@/utils/symbolDb';
-import { tabStopState, tabStopKeymap, insertSnippet } from '@/utils/snippet';
+import { insertSnippet } from '@/utils/snippet';
 import type { EditorPosition } from '@/types';
 
 interface EditorProps {
@@ -131,8 +132,7 @@ export default function Editor({
         }),
         // Add autocomplete
         autocompletion({ override: [latexCompletionSource] }),
-        tabStopState,
-        tabStopKeymap(),
+        snippetKeymap,
       ],
     });
 
