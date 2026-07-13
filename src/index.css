@@ -592,10 +592,20 @@ html, body, #root {
   border-bottom: 1px solid var(--border);
   gap: 2px;
   flex-shrink: 0;
-  overflow-x: auto;
 }
 
-.symbol-bar::-webkit-scrollbar {
+/* 符号栏的横向滚动容器——单独隔离overflow */
+.symbol-bar-scroll {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  flex: 1;
+  height: 100%;
+}
+
+.symbol-bar::-webkit-scrollbar,
+.symbol-bar-scroll::-webkit-scrollbar {
   height: 4px;
 }
 

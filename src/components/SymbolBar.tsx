@@ -42,6 +42,7 @@ export default function SymbolBar() {
 
   return (
     <div className="symbol-bar" ref={barRef}>
+      <div className="symbol-bar-scroll">
       {categories.map((cat) => (
         <div key={cat.id} className="symbol-bar-category">
           <button
@@ -69,6 +70,7 @@ export default function SymbolBar() {
           )}
         </div>
       ))}
+      </div>
     </div>
   );
 }
