@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { SYMBOL_CATEGORIES } from '@/utils/symbolDb';
 
 const VISIBLE_CATEGORIES = [
@@ -7,14 +7,15 @@ const VISIBLE_CATEGORIES = [
 ];
 
 export default function SymbolBar() {
-  const [openCategory, setOpenCategory] = useState<string | null>(null);
-
-  useEffect(() => {
-    console.log('SymbolBar mounted');
-  }, []);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
 
   const handleToggle = (id: string) => {
-    setOpenCategory(openCategory === id ? null : id);
+    setOpenCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const handleSymbolClick = (latex: string) => {
@@ -25,17 +26,13 @@ export default function SymbolBar() {
     VISIBLE_CATEGORIES.includes(c.id),
   );
 
-  const openCat = openCategory
-    ? categories.find((c) => c.id === openCategory)
-    : null;
-
   return (
     <div className="symbol-bar">
       <div className="symbol-bar-tabs">
         {categories.map((cat) => (
           <button
             key={cat.id}
-            className={`symbol-bar-btn ${openCategory === cat.id ? 'active' : ''}`}
+            className={`symbol-bar-btn ${openCategories.has(cat.id) ? 'active' : ''}`}
             onClick={() => handleToggle(cat.id)}
             title={cat.label}
           >
@@ -44,20 +41,22 @@ export default function SymbolBar() {
         ))}
       </div>
 
-      {openCat && (
-        <div className="symbol-bar-panel">
-          {openCat.symbols.map((sym, i) => (
-            <button
-              key={`${sym.latex}-${i}`}
-              className="symbol-bar-item"
-              onClick={() => handleSymbolClick(sym.latex)}
-              title={`${sym.label} — ${sym.latex}`}
-            >
-              {sym.label}
-            </button>
-          ))}
-        </div>
-      )}
+      {categories
+        .filter((cat) => openCategories.has(cat.id))
+        .map((cat) => (
+          <div key={cat.id} className="symbol-bar-panel">
+            {cat.symbols.map((sym, i) => (
+              <button
+                key={`${sym.latex}-${i}`}
+                className="symbol-bar-item"
+                onClick={() => handleSymbolClick(sym.latex)}
+                title={`${sym.label} — ${sym.latex}`}
+              >
+                {sym.label}
+              </button>
+            ))}
+          </div>
+        ))}
     </div>
   );
 }
