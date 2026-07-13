@@ -190,13 +190,12 @@ export default function Editor({
           const wordMatch = afterAll.match(/^[a-zA-Z]*/);
           if (wordMatch) skip += wordMatch[0].length;
           // Then skip any [...] and {...} groups attached to the command
-          const rest = doc.slice(skip, Math.min(doc.length, skip + 80));
-          const argRegex = /^(\[[^\]]*\]|\{[^}]*\})\s*/g;
-          argRegex.lastIndex = 0;
-          let m;
-          while ((m = argRegex.exec(rest)) !== null) {
+          let rest = doc.slice(skip, Math.min(doc.length, skip + 80));
+          while (/^(\[[^\]]*\]|\{[^}]*\})\s*/.test(rest)) {
+            const m = rest.match(/^(\[[^\]]*\]|\{[^}]*\})\s*/);
+            if (!m) break;
             skip += m[0].length;
-            argRegex.lastIndex = 0;
+            rest = rest.slice(m[0].length);
           }
           insertFrom = skip;
           insertTo = skip;
@@ -232,13 +231,12 @@ export default function Editor({
           const afterAll = doc.slice(pos, Math.min(doc.length, pos + 80));
           const wordMatch = afterAll.match(/^[a-zA-Z]*/);
           if (wordMatch) skip += wordMatch[0].length;
-          const rest = doc.slice(skip, Math.min(doc.length, skip + 80));
-          const argRegex = /^(\[[^\]]*\]|\{[^}]*\})\s*/g;
-          argRegex.lastIndex = 0;
-          let m;
-          while ((m = argRegex.exec(rest)) !== null) {
+          let rest = doc.slice(skip, Math.min(doc.length, skip + 80));
+          while (/^(\[[^\]]*\]|\{[^}]*\})\s*/.test(rest)) {
+            const m = rest.match(/^(\[[^\]]*\]|\{[^}]*\})\s*/);
+            if (!m) break;
             skip += m[0].length;
-            argRegex.lastIndex = 0;
+            rest = rest.slice(m[0].length);
           }
           from = skip;
           to = skip;
