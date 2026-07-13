@@ -519,8 +519,7 @@ html, body, #root {
 .theme-menu {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 0;
   background: var(--modal-bg);
   border: 1px solid var(--border);
   border-radius: 6px;
