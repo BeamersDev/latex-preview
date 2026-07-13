@@ -69,10 +69,11 @@ export default function App() {
   const handleExportSvg = useCallback(async () => {
     const previewEl = previewRef.current;
     if (!previewEl) return;
-    const svg = extractSvgString(previewEl);
-    if (svg) {
-      const blob = new Blob([svg], { type: 'image/svg+xml' });
-      downloadBlob(blob, 'latex-formula.svg', svg);
+    const dataUrl = await exportAsSvg(previewEl);
+    if (dataUrl) {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      downloadBlob(blob, 'latex-formula.svg');
     }
   }, []);
 
