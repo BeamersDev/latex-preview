@@ -445,13 +445,12 @@ html, body, #root {
 /* --- Export Dropdown (CSS-only hover) --- */
 .toolbar-btn-wrapper {
   position: relative;
-  padding-bottom: 8px;
 }
 
 .toolbar-btn-wrapper .export-menu {
   display: none;
   position: absolute;
-  top: calc(100% - 4px);
+  top: calc(100% + 4px);
   right: 0;
   background: var(--modal-bg);
   border: 1px solid var(--border);
@@ -718,6 +717,11 @@ html, body, #root {
 .editor-container .cm-scroller {
   overflow: auto;
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* Remove scrollbar arrows/buttons */
+.editor-container .cm-scroller::-webkit-scrollbar-button {
+  display: none;
 }
 
 .editor-container .cm-content {
