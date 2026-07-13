@@ -1,6 +1,19 @@
 import katex from 'katex';
 
 /**
+ * Extract a readable error message from a KaTeX error.
+ */
+export function parseKaTeXError(err: Error): string {
+  const msg = err.message;
+  // Remove KaTeX internal prefix noise
+  const cleaned = msg
+    .replace(/^KaTeX\s*/i, '')
+    .replace(/\\n/g, ' ')
+    .trim();
+  return cleaned.length > 80 ? cleaned.slice(0, 80) + '...' : cleaned;
+}
+
+/**
  * Check if the given LaTeX text contains any syntax errors.
  * Returns null if valid, or an error message string if invalid.
  */
