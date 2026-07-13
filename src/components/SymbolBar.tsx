@@ -10,6 +10,11 @@ export default function SymbolBar() {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
+  // Debug: log when mounted
+  useEffect(() => {
+    console.log('SymbolBar mounted', SYMBOL_CATEGORIES.length, 'categories total');
+  }, []);
+
   // Close on outside click
   useEffect(() => {
     if (!openCategory) return;
