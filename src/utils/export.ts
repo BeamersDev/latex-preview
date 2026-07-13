@@ -123,17 +123,32 @@ export async function copyToClipboard(
 }
 
 /**
- * 触发文件下载
+ * 触发文件下载（Tauri: 弹保存对话框 + 写入文件）
  */
-export function downloadBlob(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+export async function downloadBlob(blob: Blob, filename: string): Promise<void> {
+  try {
+    const { invoke } = await import('@tauri-apps/api/core');
+    // Convert blob to base64
+    const reader = new FileReader();
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+    const base64 = dataUrl.split(',')[1];
+    await invoke('save_file', { dataBase64: base64, filename });
+  } catch (err) {
+    console.error('Tauri save failed, falling back to browser download:', err);
+    // Fallback: browser download
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 }
 
 /**
