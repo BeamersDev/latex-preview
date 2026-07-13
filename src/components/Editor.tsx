@@ -208,7 +208,24 @@ export default function Editor({
       if (view) view.focus();
     };
     window.addEventListener('focus-editor', handler);
-    return () => window.removeEventListener('focus-editor', handler);
+
+    // Jump to specific position in the editor
+    const jumpHandler = (e: Event) => {
+      const pos = (e as CustomEvent<number>).detail;
+      const view = viewRef.current;
+      if (!view) return;
+      view.dispatch({
+        selection: { anchor: pos, head: pos },
+        scrollIntoView: true,
+      });
+      view.focus();
+    };
+    window.addEventListener('jump-to-pos', jumpHandler as EventListener);
+
+    return () => {
+      window.removeEventListener('focus-editor', handler);
+      window.removeEventListener('jump-to-pos', jumpHandler as EventListener);
+    };
   }, []);
 
   return (
