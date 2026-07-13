@@ -33,8 +33,8 @@ interface EditorProps {
 }
 
 // LaTeX syntax highlighting via CSS variables
-const latexHighlightStyle = EditorView.theme({
-  '.cm-line': { fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace", fontSize: '14px' },
+const latexHighlightStyle = (fontSize: number) => EditorView.theme({
+  '.cm-line': { fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace", fontSize: 'inherit' },
   '.ͼm': { color: 'var(--editor-keyword)' },
   '.ͼb': { color: 'var(--editor-number)' },
   '.ͼo': { color: 'var(--editor-operator)' },
@@ -109,7 +109,7 @@ export default function Editor({
         rectangularSelection(),
         closeBrackets(),
         history(),
-        latexHighlightStyle,
+        latexHighlightStyle(settings.fontSize || 16),
         keymap.of([
           ...closeBracketsKeymap,
           ...defaultKeymap,
