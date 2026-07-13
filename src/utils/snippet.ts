@@ -18,4 +18,5 @@ export function insertSnippet(view: EditorView, template: string) {
   const snip = snippet(template);
   const { state, dispatch } = view;
   snip({ state, dispatch }, null, state.selection.main.from, state.selection.main.to);
+  view.focus();
 }
