@@ -20,10 +20,13 @@ export default function SymbolBar() {
 
   const handleSymbolClick = (latex: string) => {
     // Templates with {} get tab-stop snippet insertion
-    if (latex.includes('{}')) {
-      // Convert {} to $1, $2, $3... numbered tab stops
+    if (latex.includes('{')) {
+      // Convert {content} to ${N:content} tab stops, numbered left to right
       let idx = 0;
-      const snippet = latex.replace(/\{\}/g, () => `$${++idx}`);
+      const snippet = latex.replace(/\{([^}]*)\}/g, (_m, content) => {
+        idx++;
+        return content ? `$\{${idx}:${content}}` : `$\{${idx}}`;
+      });
       window.dispatchEvent(new CustomEvent('insert-snippet', { detail: snippet }));
     } else {
       window.dispatchEvent(new CustomEvent('insert-latex', { detail: latex }));
