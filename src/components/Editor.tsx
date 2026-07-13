@@ -20,7 +20,6 @@ import {
   history,
   historyKeymap,
 } from '@codemirror/commands';
-import { useSettingsContext } from '@/contexts/SettingsContext';
 import { AUTOCOMPLETE_COMMANDS } from '@/utils/symbolDb';
 import { insertSnippet, snippetExtension } from '@/utils/snippet';
 import { checkLatexSyntax } from '@/utils/latex';
@@ -79,7 +78,6 @@ export default function Editor({
 }: EditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-  const { settings } = useSettingsContext();
 
   const handleChange = useCallback(
     (v: string) => onChange(v),
@@ -110,7 +108,7 @@ export default function Editor({
         rectangularSelection(),
         closeBrackets(),
         history(),
-        latexHighlightStyle(settings.fontSize || 16),
+        latexHighlightStyle(16),
         keymap.of([
           ...closeBracketsKeymap,
           ...defaultKeymap,
@@ -303,7 +301,7 @@ export default function Editor({
     <div
       ref={editorRef}
       className={`editor-container ${className}`}
-      style={{ fontSize: `${settings.fontSize || 16}px` }}
+      style={{ fontSize: '16px' }}
     />
   );
 }

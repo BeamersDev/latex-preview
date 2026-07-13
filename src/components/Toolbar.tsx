@@ -21,10 +21,8 @@ export default function Toolbar({
   onCopySvg,
 }: ToolbarProps) {
   const { themeName, setTheme } = useThemeContext();
-  const { settings, updateSettings, resetSettings } = useSettingsContext();
+  const { settings, updateSettings } = useSettingsContext();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [localSettings, setLocalSettings] = useState({ ...settings });
 
   // Close theme menu on outside click
   useEffect(() => {
@@ -33,17 +31,6 @@ export default function Toolbar({
     document.addEventListener('click', handler);
     return () => document.removeEventListener('click', handler);
   }, [showThemeMenu]);
-
-  const handleSaveSettings = () => {
-    updateSettings(localSettings);
-    setShowSettingsModal(false);
-  };
-
-  const handleResetSettings = () => {
-    resetSettings();
-    setLocalSettings({ ...settings });
-    setShowSettingsModal(false);
-  };
 
   return (
     <>
@@ -59,7 +46,7 @@ export default function Toolbar({
 
           <div className="toolbar-separator" />
 
-          <div className="toolbar-btn-wrapper" onMouseEnter={() => {}}>
+          <div className="toolbar-btn-wrapper">
             <button className="toolbar-btn" title="导出 / 复制">
               📤 导出
             </button>
@@ -89,6 +76,20 @@ export default function Toolbar({
               >
                 💾 导出 SVG
               </button>
+              <div className="export-menu-divider" />
+              <div className="export-dpi-section">
+                <label className="export-dpi-label">
+                  ⚙ 导出设置 — DPI: {settings.dpi}
+                </label>
+                <input
+                  type="range"
+                  min={72}
+                  max={600}
+                  value={settings.dpi}
+                  onChange={(e) => updateSettings({ dpi: Number(e.target.value) })}
+                  className="export-dpi-slider"
+                />
+              </div>
             </div>
           </div>
 
@@ -124,114 +125,9 @@ export default function Toolbar({
             )}
           </div>
 
-          <button
-            className="toolbar-btn"
-            onClick={() => {
-              setLocalSettings({ ...settings });
-              setShowSettingsModal(true);
-            }}
-            title="设置"
-          >
-            ⚙ 设置
-          </button>
-          {!settings.autoSave && (
-            <span className="toolbar-warning">自动保存已关闭</span>
-          )}
         </div>
       </div>
 
-      {showSettingsModal && (
-        <div className="modal-overlay" onClick={() => setShowSettingsModal(false)}>
-          <div className="modal-content settings-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>设置</h2>
-              <button className="modal-close" onClick={() => setShowSettingsModal(false)}>✕</button>
-            </div>
-            <div className="modal-body">
-              <div className="settings-group">
-                <label className="settings-label">
-                  编辑器字号
-                  <input
-                    type="number"
-                    min={10}
-                    max={32}
-                    value={localSettings.fontSize}
-                    onChange={(e) => setLocalSettings({ ...localSettings, fontSize: Number(e.target.value) })}
-                  />
-                  px
-                </label>
-              </div>
-
-              <div className="settings-group">
-                <label className="settings-label">
-                  导出 DPI
-                  <input
-                    type="number"
-                    min={72}
-                    max={600}
-                    step={50}
-                    value={localSettings.dpi}
-                    onChange={(e) => setLocalSettings({ ...localSettings, dpi: Number(e.target.value) })}
-                  />
-                  px
-                </label>
-              </div>
-
-              <div className="settings-group">
-                <label className="settings-label settings-label--checkbox">
-                  <input
-                    type="checkbox"
-                    checked={localSettings.autoSave}
-                    onChange={(e) => setLocalSettings({ ...localSettings, autoSave: e.target.checked })}
-                  />
-                  自动保存编辑器内容
-                </label>
-              </div>
-
-              <div className="settings-group">
-                <label className="settings-label settings-label--checkbox">
-                  <input
-                    type="checkbox"
-                    checked={localSettings.followSystemTheme}
-                    onChange={(e) => setLocalSettings({ ...localSettings, followSystemTheme: e.target.checked })}
-                  />
-                  跟随系统主题
-                </label>
-              </div>
-
-              <div className="settings-group">
-                <label className="settings-label settings-label--checkbox">
-                  <input
-                    type="checkbox"
-                    checked={localSettings.markdownMode}
-                    onChange={(e) => setLocalSettings({ ...localSettings, markdownMode: e.target.checked })}
-                  />
-                  Markdown 预览模式
-                </label>
-              </div>
-
-              <div className="settings-group">
-                <label className="settings-label">
-                  布局
-                  <select
-                    value={localSettings.layout}
-                    onChange={(e) =>
-                      setLocalSettings({ ...localSettings, layout: e.target.value as 'horizontal' | 'vertical' })
-                    }
-                  >
-                    <option value="horizontal">左右分栏</option>
-                    <option value="vertical">上下分栏</option>
-                  </select>
-                </label>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={handleResetSettings}>重置为默认</button>
-              <button className="btn btn-primary" onClick={handleSaveSettings}>保存</button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

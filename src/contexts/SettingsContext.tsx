@@ -3,10 +3,8 @@ import type { Settings } from '@/types';
 
 const DEFAULT_SETTINGS: Settings = {
   layout: 'horizontal',
-  fontSize: 16,
   dpi: 150,
   autoSave: true,
-  followSystemTheme: false,
   zoomLevel: 1,
   markdownMode: false,
 };

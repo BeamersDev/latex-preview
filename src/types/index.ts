@@ -6,10 +6,8 @@ export interface Theme {
 
 export interface Settings {
   layout: 'horizontal' | 'vertical';
-  fontSize: number;
   dpi: number;
   autoSave: boolean;
-  followSystemTheme: boolean;
   zoomLevel: number;
   markdownMode: boolean;
 }

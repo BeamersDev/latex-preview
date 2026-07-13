@@ -163,7 +163,17 @@ export default function App() {
       <div className="main-content">
         <div className="editor-preview-container" ref={containerRef}>
           <div className="editor-pane" style={{ flex: `${splitPos}` }}>
-            <div className="pane-header">编辑器</div>
+            <div className="pane-header">
+              编辑器
+              <label className="pane-toggle" title="自动保存">
+                <input
+                  type="checkbox"
+                  checked={settings.autoSave}
+                  onChange={(e) => updateSettings({ autoSave: e.target.checked })}
+                />
+                <span>保存</span>
+              </label>
+            </div>
             <Editor
               value={latex}
               onChange={setLatex}
@@ -174,7 +184,17 @@ export default function App() {
           <div className="divider" onMouseDown={handleDividerMouseDown} />
 
           <div className="preview-pane" style={{ flex: `${1 - splitPos}` }}>
-            <div className="pane-header">预览</div>
+            <div className="pane-header">
+              预览
+              <label className="pane-toggle" title="Markdown 模式：$$公式$$ 和 $公式$ 渲染，其余为文本">
+                <input
+                  type="checkbox"
+                  checked={settings.markdownMode}
+                  onChange={(e) => updateSettings({ markdownMode: e.target.checked })}
+                />
+                <span>Markdown</span>
+              </label>
+            </div>
             <div ref={previewRef}>
               <Preview
                 latex={latex}
