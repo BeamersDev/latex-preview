@@ -3,6 +3,15 @@ import katex from 'katex';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { parseKaTeXError } from '@/utils/latex';
 
+/** HTML-escape a string so it can be safely injected as innerHTML */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 interface PreviewProps {
   latex: string;
   onError?: (errors: string[]) => void;
@@ -18,43 +27,64 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
     if (!containerRef.current) return;
     const container = containerRef.current;
     const errors: string[] = [];
-    let hasFatalError = false;
 
     // Store LaTeX source for export
     container.setAttribute('data-latex', latex);
 
-    // Split by display math blocks and render individually
-    // Handle both $$...$$ and \[...\] display math
-    const parts = latex.split(/(\$\$[^$]*\$\$|\\\[[\s\S]*?\\\])/g);
     let html = '';
 
-    for (const part of parts) {
-      if (!part.trim()) continue;
+    // Check if the content contains display math delimiters
+    const hasDisplayMath = /\$\$/.test(latex) || /\\\[/.test(latex);
 
-      const isDisplay =
-        (part.startsWith('$$') && part.endsWith('$$')) ||
-        (part.startsWith('\\[') && part.endsWith('\\]'));
-
-      let renderContent = part;
-      if (part.startsWith('$$') && part.endsWith('$$')) {
-        renderContent = part.slice(2, -2);
-      } else if (part.startsWith('\\[') && part.endsWith('\\]')) {
-        renderContent = part.slice(2, -2);
-      }
-
+    if (!hasDisplayMath) {
+      // Single formula — render directly (inline math mode is the default)
       try {
-        const rendered = katex.renderToString(renderContent.trim(), {
+        html = katex.renderToString(latex.trim(), {
           throwOnError: true,
-          displayMode: isDisplay,
+          displayMode: false,
           output: 'html',
         });
-        html += rendered;
       } catch (err) {
         const msg = parseKaTeXError(err as Error);
         errors.push(msg);
-        // Fallback: red text
-        html += `<span class="katex-error" title="${msg}">${renderContent}</span>`;
-        hasFatalError = true;
+        html = `<span class="katex-error" title="${msg}">${escapeHtml(latex)}</span>`;
+      }
+    } else {
+      // Mixed content — split by display math blocks and render individually
+      // Handle both $$...$$ and \[...\] display math
+      const parts = latex.split(/(\$\$[^$]*\$\$|\\\[[\s\S]*?\\\])/g);
+
+      for (const part of parts) {
+        if (!part.trim()) continue;
+
+        const isDisplay =
+          (part.startsWith('$$') && part.endsWith('$$')) ||
+          (part.startsWith('\\[') && part.endsWith('\\]'));
+
+        if (isDisplay) {
+          let renderContent = part;
+          if (part.startsWith('$$') && part.endsWith('$$')) {
+            renderContent = part.slice(2, -2);
+          } else if (part.startsWith('\\[') && part.endsWith('\\]')) {
+            renderContent = part.slice(2, -2);
+          }
+
+          try {
+            html += katex.renderToString(renderContent.trim(), {
+              throwOnError: true,
+              displayMode: true,
+              output: 'html',
+            });
+          } catch (err) {
+            const msg = parseKaTeXError(err as Error);
+            errors.push(msg);
+            // Fallback: red text
+            html += `<span class="katex-error" title="${msg}">${escapeHtml(renderContent)}</span>`;
+          }
+        } else {
+          // Plain text between display math blocks — HTML escape and keep as-is
+          html += escapeHtml(part);
+        }
       }
     }
 

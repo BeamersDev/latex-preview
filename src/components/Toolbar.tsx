@@ -88,8 +88,8 @@ export default function Toolbar({ onLayoutToggle, layout, onExportPng, onExportS
             )}
           </div>
 
-          <div className="toolbar-separator" />
-
+        </div>
+        <div className="toolbar-right">
           <button
             className="toolbar-btn"
             onClick={() => {
@@ -100,8 +100,6 @@ export default function Toolbar({ onLayoutToggle, layout, onExportPng, onExportS
           >
             ⚙ 设置
           </button>
-        </div>
-        <div className="toolbar-right">
           {!settings.autoSave && (
             <span className="toolbar-warning">自动保存已关闭</span>
           )}
