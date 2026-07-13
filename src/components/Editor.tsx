@@ -172,10 +172,29 @@ export default function Editor({
       if (!latex) return;
       const view = viewRef.current;
       if (!view) return;
-      const { from, to } = view.state.selection.main;
+      const { state } = view;
+      const pos = state.selection.main.head;
+      
+      // If inserting a \command, don't insert inside an existing \command
+      let insertFrom = state.selection.main.from;
+      let insertTo = state.selection.main.to;
+      if (latex.startsWith('\\') && insertFrom === insertTo) {
+        // Check if cursor is inside or right after a \command
+        const doc = state.doc.toString();
+        const before = doc.slice(Math.max(0, pos - 50), pos);
+        const lastBS = before.lastIndexOf('\\');
+        if (lastBS !== -1 && /^[a-zA-Z]/.test(before.slice(lastBS + 1))) {
+          // Cursor is inside a \command - skip to end of the command
+          const after = doc.slice(pos, Math.min(doc.length, pos + 30));
+          const trailing = (after.match(/^[a-zA-Z]*/) || [''])[0];
+          insertFrom = pos + trailing.length;
+          insertTo = pos + trailing.length;
+        }
+      }
+      
       view.dispatch({
-        changes: { from, to, insert: latex },
-        selection: { anchor: from + latex.length },
+        changes: { from: insertFrom, to: insertTo, insert: latex },
+        selection: { anchor: insertFrom + latex.length },
         scrollIntoView: true,
       });
       view.focus();

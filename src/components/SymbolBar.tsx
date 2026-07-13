@@ -19,13 +19,15 @@ export default function SymbolBar() {
   };
 
   const handleSymbolClick = (latex: string) => {
-    // Templates with {} get tab-stop snippet insertion
-    if (latex.includes('{')) {
-      // Convert {content} to ${N:content} tab stops, numbered left to right
+    // Templates with {} or [] get tab-stop snippet insertion
+    if (latex.includes('{') || latex.includes('[')) {
+      // Convert {content} to ${N:content} and [content] to ${N:content} tab stops
       let idx = 0;
-      const snippet = latex.replace(/\{([^}]*)\}/g, (_m, content) => {
+      // Match both {...} and [...] content
+      const snippet = latex.replace(/(\{[^}]*\}|\[[^\]]*\])/g, (match) => {
         idx++;
-        return content ? `$\{${idx}:${content}}` : `$\{${idx}}`;
+        const inner = match.slice(1, -1);
+        return inner ? `$\{${idx}:${inner}}` : `$\{${idx}}`;
       });
       window.dispatchEvent(new CustomEvent('insert-snippet', { detail: snippet }));
     } else {
