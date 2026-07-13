@@ -22,7 +22,7 @@ import {
 } from '@codemirror/commands';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { AUTOCOMPLETE_COMMANDS } from '@/utils/symbolDb';
-import { insertSnippet } from '@/utils/snippet';
+import { insertSnippet, snippetExtension } from '@/utils/snippet';
 import type { EditorPosition } from '@/types';
 
 interface EditorProps {
@@ -131,6 +131,7 @@ export default function Editor({
         }),
         // Add autocomplete
         autocompletion({ override: [latexCompletionSource] }),
+        snippetExtension,
       ],
     });
 
