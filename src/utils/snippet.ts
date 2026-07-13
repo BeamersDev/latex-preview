@@ -6,5 +6,6 @@ import { snippet } from '@codemirror/autocomplete';
  */
 export function insertSnippet(view: EditorView, template: string) {
   const snip = snippet(template);
-  snip(view);
+  const { state, dispatch } = view;
+  snip({ state, dispatch }, null, state.selection.main.from, state.selection.main.to);
 }

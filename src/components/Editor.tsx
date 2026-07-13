@@ -14,7 +14,6 @@ import {
   closeBracketsKeymap,
   CompletionContext,
   autocompletion,
-  snippetKeymap,
 } from '@codemirror/autocomplete';
 import {
   defaultKeymap,
@@ -132,7 +131,6 @@ export default function Editor({
         }),
         // Add autocomplete
         autocompletion({ override: [latexCompletionSource] }),
-        snippetKeymap,
       ],
     });
 
