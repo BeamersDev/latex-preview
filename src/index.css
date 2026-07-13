@@ -670,11 +670,13 @@ html, body, #root {
   width: 4px;
   background: var(--divider-color);
   flex-shrink: 0;
+  cursor: col-resize;
 }
 
 .layout-vertical .divider {
   width: 100%;
   height: 4px;
+  cursor: row-resize;
 }
 
 /* --- Editor Pane --- */

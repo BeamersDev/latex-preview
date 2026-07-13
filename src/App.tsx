@@ -27,6 +27,12 @@ export default function App() {
   const previewRef = useRef<HTMLDivElement>(null);
   const { settings, updateSettings } = useSettingsContext();
   const { loadSession, saveSession } = useSession();
+  const [splitPos, setSplitPos] = useState(() => {
+    const saved = localStorage.getItem('latex-preview-split');
+    return saved ? parseFloat(saved) : 0.5;
+  });
+  const dragging = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Session recovery
   useEffect(() => {
@@ -97,6 +103,38 @@ export default function App() {
     return () => window.removeEventListener('export-png', pngHandler);
   }, [handleExportPng]);
 
+  // Divider drag logic
+  const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    dragging.current = true;
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const isHorizontal = settings.layout !== 'vertical';
+      let pos: number;
+      if (isHorizontal) {
+        pos = (e.clientX - rect.left) / rect.width;
+      } else {
+        pos = (e.clientY - rect.top) / rect.height;
+      }
+      pos = Math.max(0.2, Math.min(0.8, pos));
+      setSplitPos(pos);
+      localStorage.setItem('latex-preview-split', String(pos));
+    };
+
+    const onMouseUp = () => {
+      dragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }, [settings.layout]);
+
   const layoutClass = settings.layout === 'vertical' ? 'layout-vertical' : 'layout-horizontal';
 
   return (
@@ -113,8 +151,8 @@ export default function App() {
       <SymbolBar />
 
       <div className="main-content">
-        <div className="editor-preview-container">
-          <div className="editor-pane">
+        <div className="editor-preview-container" ref={containerRef}>
+          <div className="editor-pane" style={{ flex: `${splitPos}` }}>
             <div className="pane-header">编辑器</div>
             <Editor
               value={latex}
@@ -123,9 +161,9 @@ export default function App() {
             />
           </div>
 
-          <div className="divider" />
+          <div className="divider" onMouseDown={handleDividerMouseDown} />
 
-          <div className="preview-pane">
+          <div className="preview-pane" style={{ flex: `${1 - splitPos}` }}>
             <div className="pane-header">预览</div>
             <div ref={previewRef}>
               <Preview
