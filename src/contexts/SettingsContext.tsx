@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS: Settings = {
   autoSave: true,
   zoomLevel: 1,
   markdownMode: false,
+  exportFileName: 'latex-formula',
 };
 
 const STORAGE_KEY = 'latex-preview-settings';

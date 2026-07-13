@@ -742,6 +742,63 @@ html, body, #root {
   color: var(--accent);
 }
 
+/* DPI settings modal */
+.dpi-modal {
+  background: var(--modal-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  min-width: 320px;
+}
+.dpi-modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+.dpi-modal-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.dpi-modal-row label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 60px;
+}
+.dpi-modal-row input[type="range"] {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--accent);
+}
+.dpi-number-input {
+  width: 60px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 12px;
+  text-align: center;
+}
+.dpi-filename-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 12px;
+}
+.dpi-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
 .editor-container {
   flex: 1;
   overflow: auto;

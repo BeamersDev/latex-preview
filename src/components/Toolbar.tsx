@@ -23,6 +23,9 @@ export default function Toolbar({
   const { themeName, setTheme } = useThemeContext();
   const { settings, updateSettings } = useSettingsContext();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showDpiModal, setShowDpiModal] = useState(false);
+  const [localDpi, setLocalDpi] = useState(settings.dpi);
+  const [localFileName, setLocalFileName] = useState(settings.exportFileName);
 
   // Close theme menu on outside click
   useEffect(() => {
@@ -79,13 +82,7 @@ export default function Toolbar({
               <div className="export-menu-divider" />
               <button
                 className="export-menu-item"
-                onClick={() => {
-                  const val = prompt('DPI (72-600):', String(settings.dpi));
-                  if (val) {
-                    const dpi = parseInt(val, 10);
-                    if (dpi >= 72 && dpi <= 600) updateSettings({ dpi });
-                  }
-                }}
+                onClick={() => setShowDpiModal(true)}
               >
                 ⚙ 导出设置 — {settings.dpi} DPI
               </button>
@@ -127,6 +124,48 @@ export default function Toolbar({
         </div>
       </div>
 
+      {showDpiModal && (
+        <div className="modal-overlay" onClick={() => setShowDpiModal(false)}>
+          <div className="dpi-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="dpi-modal-title">导出设置</div>
+            <div className="dpi-modal-row">
+              <label>DPI</label>
+              <input
+                type="range"
+                min={72}
+                max={600}
+                step={50}
+                value={localDpi}
+                onChange={(e) => setLocalDpi(Number(e.target.value))}
+              />
+              <input
+                type="number"
+                min={72}
+                max={600}
+                value={localDpi}
+                onChange={(e) => setLocalDpi(Number(e.target.value))}
+                className="dpi-number-input"
+              />
+            </div>
+            <div className="dpi-modal-row">
+              <label>默认文件名</label>
+              <input
+                type="text"
+                value={localFileName}
+                onChange={(e) => setLocalFileName(e.target.value)}
+                className="dpi-filename-input"
+              />
+            </div>
+            <div className="dpi-modal-actions">
+              <button className="btn btn-secondary" onClick={() => setShowDpiModal(false)}>取消</button>
+              <button className="btn btn-primary" onClick={() => {
+                updateSettings({ dpi: localDpi, exportFileName: localFileName });
+                setShowDpiModal(false);
+              }}>保存</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

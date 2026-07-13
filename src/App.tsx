@@ -62,9 +62,9 @@ export default function App() {
     if (!previewEl) return;
     const blob = await exportAsPng(previewEl, settings.dpi);
     if (blob) {
-      downloadBlob(blob, 'latex-formula.png');
+      downloadBlob(blob, settings.exportFileName + '.png');
     }
-  }, [settings.dpi]);
+  }, [settings.dpi, settings.exportFileName]);
 
   const handleExportSvg = useCallback(async () => {
     const previewEl = previewRef.current;
@@ -73,9 +73,9 @@ export default function App() {
     if (dataUrl) {
       const res = await fetch(dataUrl);
       const blob = await res.blob();
-      downloadBlob(blob, 'latex-formula.svg');
+      downloadBlob(blob, settings.exportFileName + '.svg');
     }
-  }, []);
+  }, [settings.exportFileName]);
 
   const handleCopyPng = useCallback(async () => {
     const previewEl = previewRef.current;
