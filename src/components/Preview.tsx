@@ -11,6 +11,26 @@ function escapeHtml(text: string): string {
     .replace(/\"/g, '&quot;');
 }
 
+/** Render a plain-text segment as Markdown: **bold**, *italic*, `code`, paragraphs, line breaks. */
+function renderMarkdown(text: string): string {
+  const paragraphs = text.split(/\n\s*\n/);
+  return paragraphs
+    .filter((p) => p.trim())
+    .map((para) => {
+      let html = escapeHtml(para);
+      // Inline code (before bold/italic to avoid conflicts)
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // Bold
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      // Italic
+      html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      // Single newlines → <br/>
+      html = html.replace(/\n/g, '<br/>');
+      return `<p>${html}</p>`;
+    })
+    .join('');
+}
+
 interface PreviewProps {
   latex: string;
   onError?: (errors: string[]) => void;
@@ -29,36 +49,91 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
 
     container.setAttribute('data-latex', latex);
 
-    // Split by double newlines → each line is an independent formula
-    const lines = latex.split(/\n\s*\n/).filter((l) => l.trim());
+    if (settings.markdownMode) {
+      // --- Markdown mode: $$...$$ / $...$ treated as LaTeX, rest as Markdown ---
+      const parts = latex.split(/(\$\$[\s\S]*?\$\$|\$[\s\S]*?\$)/g);
+      let html = '';
+      let cursor = 0;
 
-    let html = '';
-    let cursor = 0; // track position in source for bidirectional mapping
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      // Find this line's start position in the source
-      const lineStart = latex.indexOf(trimmed, cursor);
-      if (lineStart >= 0) cursor = lineStart;
+      for (const part of parts) {
+        if (!part) continue;
 
-      try {
-        // Try display mode first (centered formula)
-        const rendered = katex.renderToString(trimmed, {
-          throwOnError: true,
-          displayMode: true,
-          output: 'svg' as any,
-        });
-        html += `<span class="preview-block" data-pos="${lineStart}">${rendered}</span>`;
-      } catch (err) {
-        const msg = parseKaTeXError(err as Error);
-        errors.push(msg);
-        html += `<span class="katex-error" title="${msg}">⚠ ${escapeHtml(trimmed)}</span>`;
+        if (part.startsWith('$$') && part.endsWith('$$') && part.length >= 4) {
+          // Display math block
+          const math = part.slice(2, -2).trim();
+          const partStart = latex.indexOf(part, cursor);
+          if (partStart >= 0) cursor = partStart + part.length;
+
+          try {
+            const rendered = katex.renderToString(math, {
+              throwOnError: true,
+              displayMode: true,
+              output: 'svg' as any,
+            });
+            html += `<span class="preview-block" data-pos="${partStart}">${rendered}</span>`;
+          } catch (err) {
+            const msg = parseKaTeXError(err as Error);
+            errors.push(msg);
+            html += `<span class="katex-error" title="${msg}">⚠ ${escapeHtml(math)}</span>`;
+          }
+        } else if (part.startsWith('$') && part.endsWith('$') && part.length > 2) {
+          // Inline math
+          const math = part.slice(1, -1).trim();
+          const partStart = latex.indexOf(part, cursor);
+          if (partStart >= 0) cursor = partStart + part.length;
+
+          try {
+            const rendered = katex.renderToString(math, {
+              throwOnError: true,
+              displayMode: false,
+              output: 'svg' as any,
+            });
+            html += `<span class="preview-inline" data-pos="${partStart}">${rendered}</span>`;
+          } catch (err) {
+            const msg = parseKaTeXError(err as Error);
+            errors.push(msg);
+            html += `<span class="katex-error" title="${msg}">⚠ ${escapeHtml(math)}</span>`;
+          }
+        } else {
+          // Markdown text
+          const mdHtml = renderMarkdown(part);
+          html += mdHtml;
+          const partPos = latex.indexOf(part, cursor);
+          if (partPos >= 0) cursor = partPos + part.length;
+        }
       }
-      html += '<br/>';
-      cursor += trimmed.length;
-    }
 
-    container.innerHTML = html;
+      container.innerHTML = html;
+    } else {
+      // --- Legacy mode: double newline = formula separator ---
+      const lines = latex.split(/\n\s*\n/).filter((l) => l.trim());
+
+      let html = '';
+      let cursor = 0;
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        const lineStart = latex.indexOf(trimmed, cursor);
+        if (lineStart >= 0) cursor = lineStart;
+
+        try {
+          const rendered = katex.renderToString(trimmed, {
+            throwOnError: true,
+            displayMode: true,
+            output: 'svg' as any,
+          });
+          html += `<span class="preview-block" data-pos="${lineStart}">${rendered}</span>`;
+        } catch (err) {
+          const msg = parseKaTeXError(err as Error);
+          errors.push(msg);
+          html += `<span class="katex-error" title="${msg}">⚠ ${escapeHtml(trimmed)}</span>`;
+        }
+        html += '<br/>';
+        cursor += trimmed.length;
+      }
+
+      container.innerHTML = html;
+    }
 
     if (errors.length > 0) {
       setErrorMessages(errors);
@@ -67,7 +142,7 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
       setErrorMessages([]);
       onError?.([]);
     }
-  }, [latex, onError]);
+  }, [latex, onError, settings.markdownMode]);
 
   useEffect(() => {
     const timer = setTimeout(renderLatex, 150);
@@ -76,8 +151,7 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
 
   // Click handler for bidirectional jump
   const handleClick = useCallback((e: React.MouseEvent) => {
-    // Find the clicked preview-block
-    const target = (e.target as HTMLElement).closest('.preview-block');
+    const target = (e.target as HTMLElement).closest('.preview-block, .preview-inline');
     if (target) {
       const pos = target.getAttribute('data-pos');
       if (pos !== null) {
@@ -85,7 +159,6 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
         return;
       }
     }
-    // Fallback: just focus editor
     window.dispatchEvent(new Event('focus-editor'));
   }, []);
 

@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS: Settings = {
   autoSave: true,
   followSystemTheme: false,
   zoomLevel: 1,
+  markdownMode: false,
 };
 
 const STORAGE_KEY = 'latex-preview-settings';

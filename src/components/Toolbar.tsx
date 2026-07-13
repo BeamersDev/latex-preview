@@ -200,6 +200,17 @@ export default function Toolbar({
               </div>
 
               <div className="settings-group">
+                <label className="settings-label settings-label--checkbox">
+                  <input
+                    type="checkbox"
+                    checked={localSettings.markdownMode}
+                    onChange={(e) => setLocalSettings({ ...localSettings, markdownMode: e.target.checked })}
+                  />
+                  Markdown 预览模式
+                </label>
+              </div>
+
+              <div className="settings-group">
                 <label className="settings-label">
                   布局
                   <select

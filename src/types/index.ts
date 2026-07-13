@@ -11,6 +11,7 @@ export interface Settings {
   autoSave: boolean;
   followSystemTheme: boolean;
   zoomLevel: number;
+  markdownMode: boolean;
 }
 
 export interface SymbolCategory {
