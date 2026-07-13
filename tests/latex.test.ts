@@ -59,10 +59,78 @@ describe('checkLatexSyntax', () => {
 
   it('returns null for balanced braces with empty content', () => {
     mockRenderToString.mockClear();
-    // After the brace check, the content is split. Is there non-empty content that calls katex?
-    // For an empty string, no blocks pass through to katex.
-    // For strings like just whitespace between braces pattern...
     expect(checkLatexSyntax('{}')).toBeNull();
+  });
+
+  it('handles display math $$...$$ blocks', () => {
+    const result = checkLatexSyntax('$$\\\\frac{a}{b}$$');
+    expect(result).toBeNull();
+    expect(mockRenderToString).toHaveBeenCalledWith(
+      '\\\\frac{a}{b}',
+      expect.objectContaining({ displayMode: true }),
+    );
+  });
+
+  it('handles display math \\[...\\] blocks', () => {
+    // String: \[ \int_a^b x \, dx \]
+    const result = checkLatexSyntax('\\[\\int_a^b x\\,dx\\]');
+    expect(result).toBeNull();
+    // Content extracted from inside \[...\] is: \int_a^b x\,dx
+    expect(mockRenderToString).toHaveBeenCalledWith(
+      '\\int_a^b x\\,dx',
+      expect.objectContaining({ displayMode: true }),
+    );
+  });
+
+  it('handles mixed inline and display math', () => {
+    // Text before display math block
+    const result = checkLatexSyntax('inline $x$ here $$\\\\text{display}$$');
+    expect(result).toBeNull();
+  });
+
+  it('handles multiple display math blocks', () => {
+    const result = checkLatexSyntax('$$a$$ text $$b$$');
+    expect(result).toBeNull();
+  });
+
+  it('detects syntax error inside display math', () => {
+    mockRenderToString.mockImplementation(() => {
+      throw new Error('KaTeX parse error: Invalid expression');
+    });
+    const result = checkLatexSyntax('$$\\\\badcommand$$');
+    expect(result).not.toBeNull();
+    expect(result).toContain('语法错误');
+  });
+
+  it('returns null when checker itself throws (outer catch)', () => {
+    // Make the regex or slice throw inside the function
+    // We can't easily make native regex throw, but we can test the catch path
+    // by forcing an error in katex that propagates differently
+    // Actually, let's test the case where an unexpected throw in katex
+    // triggers the outer try-catch
+    mockRenderToString.mockImplementation(() => {
+      throw 'non-error throw'; // not an Error, so .message would fail
+    });
+    // This would normally be caught by the inner catch,
+    // but if something throws in the checker itself, outer catch catches it
+    const result = checkLatexSyntax('$$x$$');
+    // The outer catch returns null for any unexpected error
+    expect(result).toBeNull();
+  });
+
+  it('handles text after last display math block', () => {
+    const result = checkLatexSyntax('$$a$$ tail text');
+    expect(result).toBeNull();
+  });
+
+  it('handles only text (no math delimiters)', () => {
+    const result = checkLatexSyntax('just plain text here');
+    expect(result).toBeNull();
+  });
+
+  it('handles display math at start without preceding text', () => {
+    const result = checkLatexSyntax('$$display$$');
+    expect(result).toBeNull();
   });
 });
 
