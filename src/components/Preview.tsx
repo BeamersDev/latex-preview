@@ -29,63 +29,33 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
 
     container.setAttribute('data-latex', latex);
 
-    let html = '';
-    const hasDisplayMath = /\$\$/.test(latex) || /\\\\\[/.test(latex);
+    // Split by double newlines → each line is an independent formula
+    const lines = latex.split(/\n\s*\n/).filter((l) => l.trim());
 
-    if (!hasDisplayMath) {
-      // Single formula — render directly
+    let html = '';
+    let cursor = 0; // track position in source for bidirectional mapping
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      // Find this line's start position in the source
+      const lineStart = latex.indexOf(trimmed, cursor);
+      if (lineStart >= 0) cursor = lineStart;
+
       try {
-        html = katex.renderToString(latex.trim(), {
+        // Try display mode first (centered formula)
+        const rendered = katex.renderToString(trimmed, {
           throwOnError: true,
-          displayMode: false,
+          displayMode: true,
           output: 'svg' as any,
         });
+        html += `<span class="preview-block" data-pos="${lineStart}">${rendered}</span>`;
       } catch (err) {
         const msg = parseKaTeXError(err as Error);
         errors.push(msg);
-        html = `<span class="katex-error" title="${msg}">${escapeHtml(latex)}</span>`;
+        html += `<span class="katex-error" title="${msg}">⚠ ${escapeHtml(trimmed)}</span>`;
       }
-    } else {
-      // Multi-block — track source positions for bidirectional mapping
-      const regex = /(\$\$[^$]*\$\$|\\\\\[[\s\S]*?\\\\\])/g;
-      let lastIndex = 0;
-      let match: RegExpExecArray | null;
-
-      while ((match = regex.exec(latex)) !== null) {
-        // Render plain text before this block
-        if (match.index > lastIndex) {
-          const text = latex.slice(lastIndex, match.index);
-          html += escapeHtml(text);
-        }
-
-        let renderContent = match[0];
-        if (renderContent.startsWith('$$') && renderContent.endsWith('$$')) {
-          renderContent = renderContent.slice(2, -2);
-        } else if (renderContent.startsWith('\\[') && renderContent.endsWith('\\]')) {
-          renderContent = renderContent.slice(2, -2);
-        }
-
-        try {
-          const rendered = katex.renderToString(renderContent.trim(), {
-            throwOnError: true,
-            displayMode: true,
-            output: 'svg' as any,
-          });
-          // Wrap with position info for bidirectional click
-          html += `<span class="preview-block" data-pos="${match.index}">${rendered}</span>`;
-        } catch (err) {
-          const msg = parseKaTeXError(err as Error);
-          errors.push(msg);
-          html += `<span class="katex-error" title="${msg}">${escapeHtml(renderContent)}</span>`;
-        }
-
-        lastIndex = match.index + match[0].length;
-      }
-
-      // Remaining text after last block
-      if (lastIndex < latex.length) {
-        html += escapeHtml(latex.slice(lastIndex));
-      }
+      html += '<br/>';
+      cursor += trimmed.length;
     }
 
     container.innerHTML = html;
