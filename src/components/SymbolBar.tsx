@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SYMBOL_CATEGORIES } from '@/utils/symbolDb';
 
 const VISIBLE_CATEGORIES = [
@@ -8,16 +8,22 @@ const VISIBLE_CATEGORIES = [
 
 export default function SymbolBar() {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const barRef = useRef<HTMLDivElement>(null);
 
-  const handleOpen = (id: string) => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = null;
-    setOpenCategory(id);
-  };
+  // Close on outside click
+  useEffect(() => {
+    if (!openCategory) return;
+    const handler = (e: MouseEvent) => {
+      if (barRef.current && !barRef.current.contains(e.target as Node)) {
+        setOpenCategory(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openCategory]);
 
-  const handleClose = () => {
-    timerRef.current = setTimeout(() => setOpenCategory(null), 200);
+  const handleToggle = (id: string) => {
+    setOpenCategory(openCategory === id ? null : id);
   };
 
   const handleSymbolClick = (latex: string) => {
@@ -30,26 +36,18 @@ export default function SymbolBar() {
   );
 
   return (
-    <div className="symbol-bar">
+    <div className="symbol-bar" ref={barRef}>
       {categories.map((cat) => (
-        <div
-          key={cat.id}
-          className="symbol-bar-category"
-          onMouseEnter={() => handleOpen(cat.id)}
-          onMouseLeave={handleClose}
-        >
+        <div key={cat.id} className="symbol-bar-category">
           <button
             className={`symbol-bar-btn ${openCategory === cat.id ? 'active' : ''}`}
+            onClick={() => handleToggle(cat.id)}
             title={cat.label}
           >
             {cat.label}
           </button>
           {openCategory === cat.id && (
-            <div
-              className="symbol-bar-dropdown"
-              onMouseEnter={() => handleOpen(cat.id)}
-              onMouseLeave={handleClose}
-            >
+            <div className="symbol-bar-dropdown">
               <div className="symbol-bar-grid">
                 {cat.symbols.map((sym, i) => (
                   <button
