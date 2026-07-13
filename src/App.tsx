@@ -34,22 +34,37 @@ export default function App() {
   const dragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Session recovery
+  // Session recovery — only on initial mount when autoSave is enabled
+  const sessionRestored = useRef(false);
   useEffect(() => {
+    if (!settings.autoSave || sessionRestored.current) {
+      setKatexReady(true);
+      return;
+    }
     const saved = loadSession();
     if (saved) {
       setLatex(saved);
     }
+    sessionRestored.current = true;
     setKatexReady(true);
-  }, [loadSession]);
+  }, [loadSession, settings.autoSave]);
 
   // Auto save debounced
   useEffect(() => {
+    if (!settings.autoSave) return;
     const timer = setTimeout(() => {
       saveSession(latex);
     }, 500);
     return () => clearTimeout(timer);
-  }, [latex, saveSession]);
+  }, [latex, saveSession, settings.autoSave]);
+
+  // When auto-save is toggled ON, save current content immediately
+  useEffect(() => {
+    if (settings.autoSave) {
+      saveSession(latex);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.autoSave]);
 
   const handleLayoutToggle = useCallback(() => {
     updateSettings({
