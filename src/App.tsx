@@ -69,11 +69,10 @@ export default function App() {
   const handleExportSvg = useCallback(async () => {
     const previewEl = previewRef.current;
     if (!previewEl) return;
-    const dataUrl = await exportAsSvg(previewEl);
-    if (dataUrl) {
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      downloadBlob(blob, 'latex-formula.svg');
+    const svg = extractSvgString(previewEl);
+    if (svg) {
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      downloadBlob(blob, 'latex-formula.svg', svg);
     }
   }, []);
 
@@ -103,13 +102,16 @@ export default function App() {
     return () => window.removeEventListener('export-png', pngHandler);
   }, [handleExportPng]);
 
-  // Ctrl+S: show file type selector
+  // Ctrl+S handler: save with file type selector based on filename extension
   const [showExportPicker, setShowExportPicker] = useState(false);
   useEffect(() => {
-    const handler = () => setShowExportPicker(true);
+    const handler = () => {
+      // Just call PNG export with a generic name — Tauri dialog shows both filters
+      handleExportPng();
+    };
     window.addEventListener('export-file', handler);
     return () => window.removeEventListener('export-file', handler);
-  }, []);
+  }, [handleExportPng]);
 
   // Divider drag logic
   const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
@@ -190,22 +192,6 @@ export default function App() {
       />
 
       <SymbolSearch />
-      {showExportPicker && (
-        <div className="modal-overlay" onClick={() => setShowExportPicker(false)}>
-          <div className="export-picker" onClick={(e) => e.stopPropagation()}>
-            <div className="export-picker-title">导出为</div>
-            <button className="export-picker-btn" onClick={() => { setShowExportPicker(false); handleExportPng(); }}>
-              📷 PNG
-            </button>
-            <button className="export-picker-btn" onClick={() => { setShowExportPicker(false); handleExportSvg(); }}>
-              🎨 SVG
-            </button>
-            <button className="export-picker-btn export-picker-cancel" onClick={() => setShowExportPicker(false)}>
-              取消
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

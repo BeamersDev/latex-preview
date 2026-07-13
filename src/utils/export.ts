@@ -124,21 +124,32 @@ export async function copyToClipboard(
 
 /**
  * 触发文件下载（Tauri: 弹保存对话框 + 写入文件）
+ * Format determined from filename extension in the dialog.
  */
-export async function downloadBlob(blob: Blob, filename: string): Promise<void> {
+export async function downloadBlob(blob: Blob, filename: string, svgString?: string): Promise<void> {
   try {
     const { invoke } = await import('@tauri-apps/api/core');
-    // Convert blob to base64
-    const reader = new FileReader();
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-    const base64 = dataUrl.split(',')[1];
-    await invoke('save_file', { dataBase64: base64, filename });
+    // Step 1: Show save dialog and get the chosen path
+    const path = await invoke<string>('pick_save_path', { suggested: filename });
+    // Step 2: Determine format from extension
+    const isSvg = path.toLowerCase().endsWith('.svg');
+    let dataBase64: string;
+    if (isSvg && svgString) {
+      dataBase64 = btoa(unescape(encodeURIComponent(svgString)));
+    } else {
+      const reader = new FileReader();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      dataBase64 = dataUrl.split(',')[1];
+    }
+    await invoke('write_file', { path, dataBase64 });
   } catch (err) {
-    console.error('Tauri save failed, falling back to browser download:', err);
+    // User cancelled or Tauri not available
+    if (String(err).includes('cancelled') || String(err).includes(' cancelled')) return;
+    console.error('Tauri save failed:', err);
     // Fallback: browser download
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
