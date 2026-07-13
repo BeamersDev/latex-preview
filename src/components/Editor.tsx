@@ -179,7 +179,9 @@ export default function Editor({
       // If inserting a \command, don't insert inside an existing \command
       let insertFrom = state.selection.main.from;
       let insertTo = state.selection.main.to;
-      if (latex.startsWith('\\') && insertFrom === insertTo) {
+      // Skip command detection for \begin... templates (matrix, cases, etc.)
+      const isBeginTemplate = latex.startsWith('\\begin');
+      if (latex.startsWith('\\') && !isBeginTemplate && insertFrom === insertTo) {
         // Check if cursor is inside a \command with arguments
         const doc = state.doc.toString();
         const before = doc.slice(Math.max(0, pos - 80), pos);
