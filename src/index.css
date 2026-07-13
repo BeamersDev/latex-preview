@@ -440,12 +440,13 @@ html, body, #root {
 /* --- Export Dropdown (CSS-only hover) --- */
 .toolbar-btn-wrapper {
   position: relative;
+  padding-bottom: 8px;
 }
 
 .toolbar-btn-wrapper .export-menu {
   display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% - 4px);
   right: 0;
   background: var(--modal-bg);
   border: 1px solid var(--border);
@@ -454,7 +455,6 @@ html, body, #root {
   z-index: 1000;
   min-width: 150px;
   padding: 4px;
-  margin-top: 4px;
 }
 
 .toolbar-btn-wrapper:hover .export-menu,
