@@ -169,17 +169,29 @@ export default function Editor({
   useEffect(() => {
     const handler = (e: Event) => {
       const latex = (e as CustomEvent<string>).detail;
+      if (!latex) return;
       const view = viewRef.current;
       if (!view) return;
-      const pos = view.state.selection.main.head;
+      const { from, to } = view.state.selection.main;
       view.dispatch({
-        changes: { from: pos, insert: latex },
-        selection: { anchor: pos + latex.length },
+        changes: { from, to, insert: latex },
+        selection: { anchor: from + latex.length },
+        scrollIntoView: true,
       });
       view.focus();
     };
     window.addEventListener('insert-latex', handler as EventListener);
     return () => window.removeEventListener('insert-latex', handler as EventListener);
+  }, []);
+
+  // Focus editor when preview pane is clicked
+  useEffect(() => {
+    const handler = () => {
+      const view = viewRef.current;
+      if (view) view.focus();
+    };
+    window.addEventListener('focus-editor', handler);
+    return () => window.removeEventListener('focus-editor', handler);
   }, []);
 
   return (

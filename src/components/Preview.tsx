@@ -122,7 +122,7 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
   );
 
   return (
-    <div className={`preview-container ${className}`}>
+    <div className={`preview-container ${className}`} onClick={() => window.dispatchEvent(new Event('focus-editor'))}>
       <div
         className="preview-content"
         ref={containerRef}
