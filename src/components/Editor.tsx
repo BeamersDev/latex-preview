@@ -19,7 +19,6 @@ import {
   defaultKeymap,
   history,
   historyKeymap,
-  indentWithTab,
 } from '@codemirror/commands';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { AUTOCOMPLETE_COMMANDS } from '@/utils/symbolDb';
@@ -115,7 +114,6 @@ export default function Editor({
           ...closeBracketsKeymap,
           ...defaultKeymap,
           ...historyKeymap,
-          indentWithTab,
         ]),
         updateListener,
         EditorView.lineWrapping,

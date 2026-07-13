@@ -87,19 +87,25 @@ export function insertSnippet(view: EditorView, template: string) {
   view.focus();
 }
 
-/** Tab key handler: jump to next tab stop */
+/** Tab key handler: jump to next tab stop, or insert 2 spaces */
 export function tabStopKeymap() {
   return keymap.of([
     {
       key: 'Tab',
       run: (view) => {
         const stops = view.state.field(tabStopState);
-        if (stops.length === 0) return false;
-        const next = stops[0];
+        if (stops.length > 0) {
+          const next = stops[0];
+          view.dispatch({
+            selection: { anchor: next.from, head: next.head },
+            effects: advanceTabStop.of(1),
+            scrollIntoView: true,
+          });
+          return true;
+        }
+        // No tab stops: insert 2 spaces instead of indent
         view.dispatch({
-          selection: { anchor: next.from, head: next.head },
-          effects: advanceTabStop.of(1),
-          scrollIntoView: true,
+          changes: { from: view.state.selection.main.head, insert: '  ' },
         });
         return true;
       },
