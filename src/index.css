@@ -462,6 +462,8 @@ html, body, #root {
 /* --- Export Dropdown (CSS-only hover) --- */
 .toolbar-btn-wrapper {
   position: relative;
+  padding-bottom: 8px;
+  margin-bottom: -8px;
 }
 
 .toolbar-btn-wrapper .export-menu {

@@ -77,19 +77,18 @@ export default function Toolbar({
                 💾 导出 SVG
               </button>
               <div className="export-menu-divider" />
-              <div className="export-dpi-section">
-                <label className="export-dpi-label">
-                  ⚙ 导出设置 — DPI: {settings.dpi}
-                </label>
-                <input
-                  type="range"
-                  min={72}
-                  max={600}
-                  value={settings.dpi}
-                  onChange={(e) => updateSettings({ dpi: Number(e.target.value) })}
-                  className="export-dpi-slider"
-                />
-              </div>
+              <button
+                className="export-menu-item"
+                onClick={() => {
+                  const val = prompt('DPI (72-600):', String(settings.dpi));
+                  if (val) {
+                    const dpi = parseInt(val, 10);
+                    if (dpi >= 72 && dpi <= 600) updateSettings({ dpi });
+                  }
+                }}
+              >
+                ⚙ 导出设置 — {settings.dpi} DPI
+              </button>
             </div>
           </div>
 
