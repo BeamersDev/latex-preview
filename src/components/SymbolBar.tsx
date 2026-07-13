@@ -19,7 +19,15 @@ export default function SymbolBar() {
   };
 
   const handleSymbolClick = (latex: string) => {
-    window.dispatchEvent(new CustomEvent('insert-latex', { detail: latex }));
+    // Templates with {} get tab-stop snippet insertion
+    if (latex.includes('{}')) {
+      // Convert {} to $1, $2, $3... numbered tab stops
+      let idx = 0;
+      const snippet = latex.replace(/\{\}/g, () => `$${++idx}`);
+      window.dispatchEvent(new CustomEvent('insert-snippet', { detail: snippet }));
+    } else {
+      window.dispatchEvent(new CustomEvent('insert-latex', { detail: latex }));
+    }
   };
 
   const categories = SYMBOL_CATEGORIES.filter((c) =>

@@ -23,6 +23,7 @@ import {
 } from '@codemirror/commands';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { AUTOCOMPLETE_COMMANDS } from '@/utils/symbolDb';
+import { tabStopState, tabStopKeymap, insertSnippet } from '@/utils/snippet';
 import type { EditorPosition } from '@/types';
 
 interface EditorProps {
@@ -132,6 +133,8 @@ export default function Editor({
         }),
         // Add autocomplete
         autocompletion({ override: [latexCompletionSource] }),
+        tabStopState,
+        tabStopKeymap(),
       ],
     });
 
@@ -181,7 +184,21 @@ export default function Editor({
       view.focus();
     };
     window.addEventListener('insert-latex', handler as EventListener);
-    return () => window.removeEventListener('insert-latex', handler as EventListener);
+
+    // Snippet insertion (with tab stops)
+    const snippetHandler = (e: Event) => {
+      const template = (e as CustomEvent<string>).detail;
+      if (!template) return;
+      const view = viewRef.current;
+      if (!view) return;
+      insertSnippet(view, template);
+    };
+    window.addEventListener('insert-snippet', snippetHandler as EventListener);
+
+    return () => {
+      window.removeEventListener('insert-latex', handler as EventListener);
+      window.removeEventListener('insert-snippet', snippetHandler as EventListener);
+    };
   }, []);
 
   // Focus editor when preview pane is clicked
