@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { SYMBOL_CATEGORIES } from '@/utils/symbolDb';
-import type { SymbolCategory } from '@/types';
 
 interface SymbolPanelProps {
   collapsed: boolean;

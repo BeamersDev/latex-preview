@@ -675,8 +675,6 @@ html, body, #root {
   border-color: var(--accent);
 }
 
-/* Remove old dropdown styles */
-.symbol-bar-dropdown { display: none; }
 /* --- Editor & Preview Container --- */
 .editor-preview-container {
   display: flex;
@@ -798,6 +796,38 @@ html, body, #root {
   margin-top: 16px;
 }
 
+/* Editor autocomplete tooltip */
+.editor-container .cm-tooltip {
+  background: var(--modal-bg);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.editor-container .cm-tooltip-autocomplete {
+  background: var(--modal-bg);
+}
+
+.editor-container .cm-tooltip-autocomplete ul li[aria-selected] {
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.editor-container .cm-tooltip-autocomplete ul li {
+  padding: 2px 6px;
+}
+
+.editor-container .cm-completionLabel {
+  color: var(--text-primary);
+}
+
+.editor-container .cm-completionDetail {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
 .editor-container {
   flex: 1;
   overflow: auto;
@@ -848,44 +878,8 @@ html, body, #root {
   opacity: 0.4;
 }
 
-/* Ctrl+S export picker */
-.export-picker {
-  background: var(--modal-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 160px;
-}
-.export-picker-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-.export-picker-btn {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  text-align: left;
-}
-.export-picker-btn:hover {
-  background: var(--accent);
-  color: var(--btn-primary-text);
-}
-.export-picker-cancel {
-  text-align: center;
-  opacity: 0.7;
-}
-
-.editor-container .cm-tooltip {
+/* --- Layout --- */
+.app {
   background: var(--modal-bg);
   border: 1px solid var(--border);
   color: var(--text-primary);

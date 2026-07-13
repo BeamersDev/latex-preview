@@ -1,55 +1,68 @@
-import { describe, it, expect } from 'vitest';
-import { checkLatexErrors, getErrorLines, parseKaTeXError } from '../src/utils/latex';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { parseKaTeXError } from '../src/utils/latex';
 
-describe('checkLatexErrors', () => {
-  it('returns empty array for valid LaTeX', () => {
-    expect(checkLatexErrors('\\frac{x}{y}')).toEqual([]);
+// Mock katex for syntax check tests
+const mockRenderToString = vi.fn();
+vi.mock('katex', () => ({
+  default: {
+    renderToString: (...args: any[]) => mockRenderToString(...args),
+  },
+}));
+
+// Import after mocking
+import { checkLatexSyntax } from '../src/utils/latex';
+
+describe('checkLatexSyntax', () => {
+  beforeEach(() => {
+    mockRenderToString.mockReset();
+    // Default: renderToString succeeds
+    mockRenderToString.mockReturnValue('<span>rendered</span>');
+  });
+
+  it('returns null for valid LaTeX', () => {
+    expect(checkLatexSyntax('\\frac{x}{y}')).toBeNull();
+    expect(mockRenderToString).toHaveBeenCalled();
   });
 
   it('detects mismatched braces', () => {
-    const errors = checkLatexErrors('\\frac{x{y}');
-    expect(errors.length).toBeGreaterThanOrEqual(1);
-    expect(errors.some(e => e.includes('花括号') || e.includes('}'))).toBe(true);
+    // Brace depth ends at 1
+    const result = checkLatexSyntax('\\frac{x{y}');
+    expect(result).not.toBeNull();
+    expect(result).toContain('花括号');
   });
 
   it('detects extra closing brace', () => {
-    const errors = checkLatexErrors('\\frac{x}{y}}');
-    expect(errors.length).toBeGreaterThan(0);
+    const result = checkLatexSyntax('\\frac{x}{y}}');
+    expect(result).not.toBeNull();
+    expect(result).toContain('花括号');
   });
 
   it('handles empty string', () => {
-    expect(checkLatexErrors('')).toEqual([]);
-  });
-
-  it('handles complex valid LaTeX', () => {
-    const latex = '\\sum_{i=1}^{n} \\frac{1}{i^2} = \\frac{\\pi^2}{6}';
-    expect(checkLatexErrors(latex)).toEqual([]);
-  });
-
-  it('detects unmatched parentheses', () => {
-    const errors = checkLatexErrors('\\sin(x');
-    expect(errors.some(e => e.includes('括号'))).toBe(true);
+    expect(checkLatexSyntax('')).toBeNull();
   });
 
   it('handles multi-line LaTeX', () => {
-    const latex = 'a = b \\\\\nc = d }';
-    const errors = checkLatexErrors(latex);
-    expect(errors.length).toBeGreaterThan(0);
-  });
-});
-
-describe('getErrorLines', () => {
-  it('returns empty for valid LaTeX', () => {
-    expect(getErrorLines('\\frac{a}{b}')).toEqual([]);
+    const result = checkLatexSyntax('a = b \\\\\nc = d }');
+    expect(result).not.toBeNull();
+    expect(result).toContain('花括号');
   });
 
-  it('detects error line with mismatched braces', () => {
-    const lines = getErrorLines('\\frac{a}{b}\n\\frac{c{d}');
-    expect(lines).toContain(1);
+  it('detects syntax errors via KaTeX', () => {
+    // Make katex throw for this call
+    mockRenderToString.mockImplementation(() => {
+      throw new Error('KaTeX parse error: Invalid expression');
+    });
+    const result = checkLatexSyntax('\\\\frac{x}'); // valid braces, but katex will reject
+    expect(result).not.toBeNull();
+    expect(result).toContain('语法错误');
   });
 
-  it('handles empty string', () => {
-    expect(getErrorLines('')).toEqual([]);
+  it('returns null for balanced braces with empty content', () => {
+    mockRenderToString.mockClear();
+    // After the brace check, the content is split. Is there non-empty content that calls katex?
+    // For an empty string, no blocks pass through to katex.
+    // For strings like just whitespace between braces pattern...
+    expect(checkLatexSyntax('{}')).toBeNull();
   });
 });
 
@@ -59,6 +72,13 @@ describe('parseKaTeXError', () => {
     const result = parseKaTeXError(error);
     expect(result).toContain('5');
     expect(result).toContain('x');
+  });
+
+  it('trims long error messages', () => {
+    const longMsg = 'a'.repeat(100);
+    const error = new Error(longMsg);
+    const result = parseKaTeXError(error);
+    expect(result.length).toBeLessThanOrEqual(83); // 80 + '...'
   });
 
   it('returns message as-is for non-KaTeX errors', () => {

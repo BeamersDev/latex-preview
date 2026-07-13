@@ -1,23 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 
 const SESSION_KEY = 'latex-preview-session';
 
 export function useSession() {
   const { settings } = useSettingsContext();
-  const [restored, setRestored] = useState(false);
-
-  // 恢复会话
-  useEffect(() => {
-    if (!settings.autoSave || restored) return;
-    try {
-      const saved = localStorage.getItem(SESSION_KEY);
-      if (saved) {
-        // Return the content to the caller
-        setRestored(true);
-      }
-    } catch { /* noop */ }
-  }, [settings.autoSave, restored]);
 
   // 保存会话
   const saveSession = useCallback(
@@ -44,5 +31,5 @@ export function useSession() {
     } catch { /* noop */ }
   }, []);
 
-  return { saveSession, loadSession, clearSession, restored, setRestored };
+  return { saveSession, loadSession, clearSession };
 }

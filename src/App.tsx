@@ -119,7 +119,6 @@ export default function App() {
   }, [handleExportPng]);
 
   // Ctrl+S handler: save with file type selector based on filename extension
-  const [showExportPicker, setShowExportPicker] = useState(false);
   useEffect(() => {
     const handler = () => {
       // Just call PNG export with a generic name — Tauri dialog shows both filters

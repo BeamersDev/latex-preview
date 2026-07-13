@@ -1,6 +1,7 @@
 {
   "name": "latex-preview",
   "version": "1.0.0",
+  "homepage": "https://beamersdev.github.io/latex-preview/",
   "description": "LaTeX Preview — 桌面端公式编辑器",
   "type": "module",
   "scripts": {
