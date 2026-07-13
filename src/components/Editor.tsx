@@ -207,7 +207,23 @@ export default function Editor({
       if (!template) return;
       const view = viewRef.current;
       if (!view) return;
-      insertSnippet(view, template);
+      // Same \command skip logic
+      const { state } = view;
+      const pos = state.selection.main.head;
+      let from = state.selection.main.from;
+      let to = state.selection.main.to;
+      if (from === to) {
+        const doc = state.doc.toString();
+        const before = doc.slice(Math.max(0, pos - 50), pos);
+        const lastBS = before.lastIndexOf('\\');
+        if (lastBS !== -1 && /^[a-zA-Z]/.test(before.slice(lastBS + 1))) {
+          const after = doc.slice(pos, Math.min(doc.length, pos + 30));
+          const trailing = (after.match(/^[a-zA-Z]*/) || [''])[0];
+          from = pos + trailing.length;
+          to = pos + trailing.length;
+        }
+      }
+      insertSnippet(view, template, from, to);
     };
     window.addEventListener('insert-snippet', snippetHandler as EventListener);
 

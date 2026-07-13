@@ -21,13 +21,17 @@ export default function SymbolBar() {
   const handleSymbolClick = (latex: string) => {
     // Templates with {} or [] get tab-stop snippet insertion
     if (latex.includes('{') || latex.includes('[')) {
-      // Convert {content} to ${N:content} and [content] to ${N:content} tab stops
+      // Convert {a} to {${1:a}} and [n] to [${1:n}] — keeps braces/brackets
       let idx = 0;
-      // Match both {...} and [...] content
       const snippet = latex.replace(/(\{[^}]*\}|\[[^\]]*\])/g, (match) => {
         idx++;
         const inner = match.slice(1, -1);
-        return inner ? `$\{${idx}:${inner}}` : `$\{${idx}}`;
+        const delim = match[0]; // '{' or '['
+        if (delim === '{') {
+          return inner ? `{$\{${idx}:${inner}}` : `{$\{${idx}}`;
+        } else {
+          return inner ? `[$\{${idx}:${inner}}` : `[$\{${idx}}`;
+        }
       });
       window.dispatchEvent(new CustomEvent('insert-snippet', { detail: snippet }));
     } else {

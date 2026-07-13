@@ -7,16 +7,21 @@ export { nextSnippetField, clearSnippet };
 /** Tab/Shift-Tab/Escape handling for snippet tab-stop navigation. */
 export const snippetExtension = keymap.of([
   { key: 'Tab', run: nextSnippetField },
-  { key: 'Shift-Tab', run: () => false }, // will be handled by prevSnippetField if active
+  { key: 'Shift-Tab', run: () => false },
   { key: 'Escape', run: clearSnippet },
 ]);
 
 /**
- * Insert a snippet template (with $1, $2 tab stops) at cursor.
+ * Insert a snippet template at cursor or specified position.
  */
-export function insertSnippet(view: EditorView, template: string) {
+export function insertSnippet(view: EditorView, template: string, from?: number, to?: number) {
   const snip = snippet(template);
   const { state, dispatch } = view;
-  snip({ state, dispatch }, null, state.selection.main.from, state.selection.main.to);
+  snip(
+    { state, dispatch },
+    null,
+    from ?? state.selection.main.from,
+    to ?? state.selection.main.to,
+  );
   view.focus();
 }

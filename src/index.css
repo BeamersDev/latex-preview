@@ -744,6 +744,11 @@ html, body, #root {
   opacity: 0.2;
 }
 
+/* Snippet tab stop: more visible selection */
+.editor-container .cm-activeSnippet .cm-selectionBackground {
+  opacity: 0.4;
+}
+
 .editor-container .cm-tooltip {
   background: var(--modal-bg);
   border: 1px solid var(--border);
