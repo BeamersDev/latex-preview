@@ -1,31 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { SYMBOL_CATEGORIES } from '@/utils/symbolDb';
 
-/** Only show these categories in the compact bar */
 const VISIBLE_CATEGORIES = [
-  'greek',
-  'operators',
-  'arrows',
-  'set-theory',
-  'matrices',
-  'integrals-sums',
+  'greek', 'operators', 'arrows',
+  'set-theory', 'matrices', 'integrals-sums',
 ];
 
 export default function SymbolBar() {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
-  const barRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    if (!openCategory) return;
-    const handler = (e: MouseEvent) => {
-      if (barRef.current && !barRef.current.contains(e.target as Node)) {
-        setOpenCategory(null);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [openCategory]);
+  const handleOpen = (id: string) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
+    setOpenCategory(id);
+  };
+
+  const handleClose = () => {
+    timerRef.current = setTimeout(() => setOpenCategory(null), 200);
+  };
 
   const handleSymbolClick = (latex: string) => {
     window.dispatchEvent(new CustomEvent('insert-latex', { detail: latex }));
@@ -37,20 +30,26 @@ export default function SymbolBar() {
   );
 
   return (
-    <div className="symbol-bar" ref={barRef}>
+    <div className="symbol-bar">
       {categories.map((cat) => (
-        <div key={cat.id} className="symbol-bar-category">
+        <div
+          key={cat.id}
+          className="symbol-bar-category"
+          onMouseEnter={() => handleOpen(cat.id)}
+          onMouseLeave={handleClose}
+        >
           <button
             className={`symbol-bar-btn ${openCategory === cat.id ? 'active' : ''}`}
-            onClick={() =>
-              setOpenCategory(openCategory === cat.id ? null : cat.id)
-            }
             title={cat.label}
           >
             {cat.label}
           </button>
           {openCategory === cat.id && (
-            <div className="symbol-bar-dropdown">
+            <div
+              className="symbol-bar-dropdown"
+              onMouseEnter={() => handleOpen(cat.id)}
+              onMouseLeave={handleClose}
+            >
               <div className="symbol-bar-grid">
                 {cat.symbols.map((sym, i) => (
                   <button

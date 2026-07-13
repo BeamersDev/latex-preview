@@ -23,7 +23,6 @@ export default function Toolbar({
   const { themeName, setTheme } = useThemeContext();
   const { settings, updateSettings, resetSettings } = useSettingsContext();
   const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [showExportMenu, setShowExportMenu] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [localSettings, setLocalSettings] = useState({ ...settings });
 
@@ -60,49 +59,37 @@ export default function Toolbar({
 
           <div className="toolbar-separator" />
 
-          <div
-            className="export-dropdown"
-            onMouseEnter={() => setShowExportMenu(true)}
-            onMouseLeave={() => {
-              // Small delay so user can reach the menu from the button
-              setTimeout(() => setShowExportMenu(false), 200);
-            }}
-          >
+          <div className="toolbar-btn-wrapper" onMouseEnter={() => {}}>
             <button className="toolbar-btn" title="导出 / 复制">
               📤 导出
             </button>
-            <div
-              className="export-menu"
-              onMouseEnter={() => setShowExportMenu(true)}
-              onMouseLeave={() => setShowExportMenu(false)}
-              style={{ display: showExportMenu ? 'block' : 'none' }}
-            >
-                <button
-                  className="export-menu-item"
-                  onClick={() => { onCopyPng(); setShowExportMenu(false); }}
-                >
-                  📋 复制 PNG
-                </button>
-                <button
-                  className="export-menu-item"
-                  onClick={() => { onCopySvg(); setShowExportMenu(false); }}
-                >
-                  📋 复制 SVG
-                </button>
-                <div className="export-menu-divider" />
-                <button
-                  className="export-menu-item"
-                  onClick={() => { onExportPng(); setShowExportMenu(false); }}
-                >
-                  💾 导出 PNG
-                </button>
-                <button
-                  className="export-menu-item"
-                  onClick={() => { onExportSvg(); setShowExportMenu(false); }}
-                >
-                  💾 导出 SVG
-                </button>
-              </div>
+            <div className="export-menu">
+              <button
+                className="export-menu-item"
+                onClick={() => { onCopyPng(); }}
+              >
+                📋 复制 PNG
+              </button>
+              <button
+                className="export-menu-item"
+                onClick={() => { onCopySvg(); }}
+              >
+                📋 复制 SVG
+              </button>
+              <div className="export-menu-divider" />
+              <button
+                className="export-menu-item"
+                onClick={() => { onExportPng(); }}
+              >
+                💾 导出 PNG
+              </button>
+              <button
+                className="export-menu-item"
+                onClick={() => { onExportSvg(); }}
+              >
+                💾 导出 SVG
+              </button>
+            </div>
           </div>
 
           <div className="toolbar-separator" />
