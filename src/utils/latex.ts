@@ -1,6 +1,73 @@
 import katex from 'katex';
 
 /**
+ * Get the LaTeX block ($...$ or $$...$$) at the given position.
+ * Returns { start, end, content } or null if cursor is not inside any LaTeX block.
+ */
+export function getCurrentLatexBlockAt(
+  text: string,
+  pos: number,
+): { start: number; end: number; content: string; isDisplay: boolean } | null {
+  // Check if pos is inside $$...$$ (display math)
+  const displayStart = text.lastIndexOf('$$', pos);
+  if (displayStart >= 0) {
+    const displayEnd = text.indexOf('$$', displayStart + 2);
+    if (displayEnd < 0 || displayEnd >= pos) {
+      return { start: displayStart, end: displayEnd, content: text.slice(displayStart + 2, displayEnd), isDisplay: true };
+    }
+  }
+  // Check if pos is inside $...$ (inline math)
+  const inlineStart = text.lastIndexOf('$', pos);
+  if (inlineStart >= 0) {
+    const inlineEnd = text.indexOf('$', inlineStart + 1);
+    if (inlineEnd < 0 || inlineEnd >= pos) {
+      return { start: inlineStart, end: inlineEnd, content: text.slice(inlineStart + 1, inlineEnd), isDisplay: false };
+    }
+  }
+  return null;
+}
+
+/**
+ * Check a single LaTeX block's content for syntax errors.
+ * Returns null if valid, or an error message string if invalid.
+ */
+export function checkLatexBlock(content: string, isDisplay: boolean): string | null {
+  try {
+    // Check for unbalanced braces first (fast path)
+    let depth = 0;
+    for (let i = 0; i < content.length; i++) {
+      if (content[i] === '{') depth++;
+      if (content[i] === '}') {
+        depth--;
+        if (depth < 0) return '非匹配的右花括号 }';
+      }
+    }
+    if (depth > 0) return '缺少闭合花括号 }，当前有 ' + depth + ' 个未闭合';
+
+    if (content.trim()) {
+      try {
+        katex.renderToString(content.trim(), {
+          throwOnError: true,
+          displayMode: isDisplay,
+          output: 'svg',
+        } as any);
+      } catch (err) {
+        const msg = (err as Error).message.slice(0, 100);
+        return `语法错误: ${msg}`;
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/** Check if position is inside any LaTeX delimiter ($...$ or $$...$$). */
+export function isInsideLatexBlock(text: string, pos: number): boolean {
+  return getCurrentLatexBlockAt(text, pos) !== null;
+}
+
+/**
  * Extract a readable error message from a KaTeX error.
  */
 export function parseKaTeXError(err: Error): string {

@@ -22,7 +22,8 @@ import {
 } from '@codemirror/commands';
 import { AUTOCOMPLETE_COMMANDS } from '@/utils/symbolDb';
 import { insertSnippet, snippetExtension } from '@/utils/snippet';
-import { checkLatexSyntax } from '@/utils/latex';
+import { checkLatexBlock, getCurrentLatexBlockAt, isInsideLatexBlock } from '@/utils/latex';
+import { useSettingsContext } from '@/contexts/SettingsContext';
 import type { EditorPosition } from '@/types';
 
 interface EditorProps {
@@ -78,6 +79,7 @@ export default function Editor({
 }: EditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  const { settings } = useSettingsContext();
 
   const handleChange = useCallback(
     (v: string) => onChange(v),
@@ -202,10 +204,20 @@ export default function Editor({
           insertTo = skip;
         }
       }
-      // Syntax check: simulate insertion and validate
-      const docBefore = state.doc.toString();
-      const expected = docBefore.slice(0, insertFrom) + latex + docBefore.slice(insertTo);
-      const syntaxErr = checkLatexSyntax(expected);
+      const docText = state.doc.toString();
+      // Check if cursor is inside a LaTeX block (only in Markdown mode)
+      if (settings.markdownMode && !isInsideLatexBlock(docText, pos)) {
+        window.dispatchEvent(new CustomEvent('syntax-warning', { detail: '请在 LaTeX 块内插入（$ 或 $$ 之间）' }));
+        return;
+      }
+      // Syntax check: simulate insertion and validate only the current LaTeX block
+      const blockBeforeInsert = getCurrentLatexBlockAt(docText, pos);
+      const blockStart = blockBeforeInsert ? blockBeforeInsert.start : pos;
+      const blockEnd = blockBeforeInsert ? blockBeforeInsert.end : pos;
+      const isDisplay = blockBeforeInsert ? blockBeforeInsert.isDisplay : false;
+      const contentBefore = blockBeforeInsert ? blockBeforeInsert.content : '';
+      const contentAfter = contentBefore + latex; // simplified: just append
+      const syntaxErr = checkLatexBlock(contentAfter, isDisplay);
       if (syntaxErr) {
         window.dispatchEvent(new CustomEvent('syntax-warning', { detail: syntaxErr }));
         console.warn('Syntax check failed:', syntaxErr);
@@ -252,10 +264,18 @@ export default function Editor({
           to = skip;
         }
       }
-      // Syntax check for snippet insertion
-      const docBefore2 = state.doc.toString();
-      const expected2 = docBefore2.slice(0, from) + template.replace(/\$\{?\d+(?::([^}]*))?\}?/g, (_m, def) => def ?? '') + docBefore2.slice(to);
-      const syntaxErr2 = checkLatexSyntax(expected2);
+      // Check if cursor is inside a LaTeX block (only in Markdown mode)
+      const docText2 = state.doc.toString();
+      if (settings.markdownMode && !isInsideLatexBlock(docText2, pos)) {
+        window.dispatchEvent(new CustomEvent('syntax-warning', { detail: '请在 LaTeX 块内插入（$ 或 $$ 之间）' }));
+        return;
+      }
+      // Syntax check for snippet: validate only the current LaTeX block
+      const block2 = getCurrentLatexBlockAt(docText2, pos);
+      const blockContent2 = block2 ? block2.content : '';
+      const blockIsDisplay2 = block2 ? block2.isDisplay : false;
+      const snippetText2 = template.replace(/\$\{?\d+(?::([^}]*))?\}?/g, (_m, def) => def ?? '');
+      const syntaxErr2 = checkLatexBlock(blockContent2 + snippetText2, blockIsDisplay2);
       if (syntaxErr2) {
         window.dispatchEvent(new CustomEvent('syntax-warning', { detail: syntaxErr2 }));
         return;
