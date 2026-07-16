@@ -204,7 +204,7 @@ export default function App() {
               {settings.markdownMode && (
                 <input
                   type="range"
-                  min="10"
+                  min="50"
                   max="100"
                   value={Math.round(settings.markdownScale * 100)}
                   onChange={(e) =>
