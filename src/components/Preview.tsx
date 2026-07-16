@@ -81,9 +81,10 @@ interface PreviewProps {
   latex: string;
   onError?: (errors: string[]) => void;
   className?: string;
+  markdownScale?: number;
 }
 
-export default function Preview({ latex, onError, className = '' }: PreviewProps) {
+export default function Preview({ latex, onError, className = '', markdownScale }: PreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const { settings } = useSettingsContext();
@@ -229,6 +230,9 @@ export default function Preview({ latex, onError, className = '' }: PreviewProps
         className="preview-content"
         ref={containerRef}
         onWheel={handleWheel}
+        style={{
+          '--markdown-scale': markdownScale ?? settings.markdownScale,
+        } as React.CSSProperties}
       />
       {errorMessages.length > 0 && (
         <div className="preview-errors">

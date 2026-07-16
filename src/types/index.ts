@@ -10,6 +10,7 @@ export interface Settings {
   autoSave: boolean;
   zoomLevel: number;
   markdownMode: boolean;
+  markdownScale: number;
   exportFileName: string;
 }
 

@@ -731,6 +731,12 @@ html, body, #root {
   color: var(--text-muted);
   margin-left: auto;
 }
+.pane-header input[type="range"] {
+  width: 80px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  margin: 0;
+}
 .pane-toggle input[type="checkbox"] {
   margin: 0;
   cursor: pointer;
@@ -962,7 +968,7 @@ html, body, #root {
 
 /* Larger base KaTeX size in preview */
 .preview-content .katex {
-  font-size: 2em;
+  font-size: calc(2em * var(--markdown-scale, 1));
 }
 
 .preview-content .katex-display {
@@ -971,7 +977,7 @@ html, body, #root {
 }
 
 .preview-content .katex-display > .katex {
-  font-size: 2.2em;
+  font-size: calc(2.2em * var(--markdown-scale, 1));
 }
 
 /* Clickable preview block for bidirectional jump */

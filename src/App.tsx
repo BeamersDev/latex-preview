@@ -201,7 +201,22 @@ export default function App() {
           <div className="preview-pane" style={{ flex: `${1 - splitPos}` }}>
             <div className="pane-header">
               预览
-              <label className="pane-toggle" title="Markdown 模式：$$公式$$ 和 $公式$ 渲染，其余为文本">
+              {settings.markdownMode && (
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  value={Math.round(settings.markdownScale * 100)}
+                  onChange={(e) =>
+                    updateSettings({ markdownScale: parseInt(e.target.value) / 100 })
+                  }
+                  title={`公式渲染大小: ${Math.round(settings.markdownScale * 100)}%`}
+                />
+              )}
+              <label
+                className="pane-toggle"
+                title="Markdown 模式：$$公式$$ 和 $公式$ 渲染，其余为文本"
+              >
                 <input
                   type="checkbox"
                   checked={settings.markdownMode}
@@ -214,6 +229,7 @@ export default function App() {
               <Preview
                 latex={latex}
                 onError={handleError}
+                markdownScale={settings.markdownScale}
               />
             </div>
           </div>

@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS: Settings = {
   autoSave: true,
   zoomLevel: 1,
   markdownMode: false,
+  markdownScale: 0.8,
   exportFileName: 'latex-formula',
 };
 
