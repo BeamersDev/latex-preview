@@ -17,8 +17,9 @@ function renderMarkdown(text: string): string {
   const codeBlocks: string[] = [];
   text = text.replace(/```(\w*)\n([\s\S]*?)```/g, (_match, lang, code) => {
     const idx = codeBlocks.length;
+    // Replace newlines with HTML entity so paragraph splitting doesn't break <pre>
     codeBlocks.push(
-      `<pre><code class="language-${lang || 'text'}">${escapeHtml(code.trim())}</code></pre>`,
+      `<pre><code class="language-${lang || 'text'}">${escapeHtml(code.trim()).replace(/\r?\n/g, '&#10;')}</code></pre>`,
     );
     return `__CODE_BLOCK_${idx}__`;
   });
@@ -58,11 +59,9 @@ function renderMarkdown(text: string): string {
     '<a href="$2" target="_blank" rel="noopener">$1</a>',
   );
 
-  // Restore inline code
-  text = text.replace(/__INLINE_CODE_(\d+)__/g, (_m, idx) => inlineCodes[parseInt(idx)]);
-
-  // Restore fenced code blocks
+  // Restore fenced code blocks and inline code BEFORE paragraph splitting
   text = text.replace(/__CODE_BLOCK_(\d+)__/g, (_m, idx) => codeBlocks[parseInt(idx)]);
+  text = text.replace(/__INLINE_CODE_(\d+)__/g, (_m, idx) => inlineCodes[parseInt(idx)]);
 
   // Paragraphs (blank lines separate them)
   const paragraphs = text.split(/\n\s*\n/);

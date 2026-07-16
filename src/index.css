@@ -1356,6 +1356,9 @@ html, body, #root {
 .preview-content pre code {
   background: transparent;
   padding: 0;
+  white-space: pre;
+  display: block;
+  line-height: 1.5;
 }
 
 .preview-content a {
