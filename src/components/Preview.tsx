@@ -8,25 +8,72 @@ function escapeHtml(text: string): string {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/\"/g, '&quot;');
+    .replace(/"/g, '&quot;');
 }
 
-/** Render a plain-text segment as Markdown: **bold**, *italic*, `code`, paragraphs, line breaks. */
+/** Render a plain-text segment with full Markdown support. */
 function renderMarkdown(text: string): string {
+  // Extract fenced code blocks first (```lang...```)
+  const codeBlocks: string[] = [];
+  text = text.replace(/```(\w*)\n([\s\S]*?)```/g, (_match, lang, code) => {
+    const idx = codeBlocks.length;
+    codeBlocks.push(
+      `<pre><code class="language-${lang || 'text'}">${escapeHtml(code.trim())}</code></pre>`,
+    );
+    return `__CODE_BLOCK_${idx}__`;
+  });
+
+  // Extract inline code (`code`)
+  const inlineCodes: string[] = [];
+  text = text.replace(/`([^`]+)`/g, (_match, code) => {
+    const idx = inlineCodes.length;
+    inlineCodes.push(`<code>${escapeHtml(code)}</code>`);
+    return `__INLINE_CODE_${idx}__`;
+  });
+
+  // Headers: ### / ## / #
+  text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  text = text.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+  // Blockquotes
+  text = text.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+  text = text.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Horizontal rule
+  text = text.replace(/^---+$/gm, '<hr/>');
+
+  // Unordered list items (- or *)
+  text = text.replace(/^(?:-|\*) (.+)$/gm, '<li>$1</li>');
+  // Wrap consecutive <li> in <ul>
+  text = text.replace(/((?:<li>.*?<\/li>\s*)+)/g, '<ul>$1</ul>');
+
+  // Bold + italic (now safe — code already extracted)
+  text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+  // Links [text](url)
+  text = text.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener">$1</a>',
+  );
+
+  // Restore inline code
+  text = text.replace(/__INLINE_CODE_(\d+)__/g, (_m, idx) => inlineCodes[parseInt(idx)]);
+
+  // Restore fenced code blocks
+  text = text.replace(/__CODE_BLOCK_(\d+)__/g, (_m, idx) => codeBlocks[parseInt(idx)]);
+
+  // Paragraphs (blank lines separate them)
   const paragraphs = text.split(/\n\s*\n/);
   return paragraphs
     .filter((p) => p.trim())
     .map((para) => {
-      let html = escapeHtml(para);
-      // Inline code (before bold/italic to avoid conflicts)
-      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-      // Bold
-      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      // Italic
-      html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-      // Single newlines → <br/>
-      html = html.replace(/\n/g, '<br/>');
-      return `<p>${html}</p>`;
+      // Already a block-level element? Don't wrap in <p>
+      if (/^<(h[1-6]|blockquote|ul|pre|hr)/.test(para.trim())) {
+        return para;
+      }
+      return `<p>${para.replace(/\n/g, '<br/>')}</p>`;
     })
     .join('');
 }

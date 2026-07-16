@@ -918,6 +918,20 @@ html, body, #root {
   background: var(--bg-primary);
 }
 
+/* Wrapper around Preview needs to fill remaining pane height */
+.preview-pane > div:last-child {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
 .preview-content {
   flex: 1;
   padding: 20px;
@@ -1286,4 +1300,72 @@ html, body, #root {
 /* --- KaTeX loaded font fallback --- */
 .katex .katex-html {
   white-space: nowrap;
+}
+
+/* Markdown rendered elements */
+.preview-content h1,
+.preview-content h2,
+.preview-content h3 {
+  margin: 0.5em 0 0.3em;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.preview-content h1 { font-size: 1.8em; }
+.preview-content h2 { font-size: 1.5em; }
+.preview-content h3 { font-size: 1.2em; }
+
+.preview-content p {
+  margin: 0.3em 0;
+}
+
+.preview-content ul {
+  margin: 0.3em 0;
+  padding-left: 1.5em;
+}
+
+.preview-content li {
+  list-style: disc;
+}
+
+.preview-content blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 0.5em 0;
+  padding: 0.2em 1em;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.preview-content pre {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.8em 1em;
+  margin: 0.5em 0;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.preview-content code {
+  font-family: 'SF Mono', Consolas, monospace;
+  background: var(--bg-tertiary);
+  padding: 0.15em 0.35em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.preview-content pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.preview-content a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.preview-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1em 0;
+  width: 100%;
 }
