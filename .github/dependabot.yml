@@ -35,6 +35,7 @@ updates:
       testing:
         patterns:
           - "vitest"
+          - "@vitest/coverage-v8"
           - "@testing-library/*"
           - "jsdom"
       katex:
