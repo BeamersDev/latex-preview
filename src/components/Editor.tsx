@@ -80,6 +80,8 @@ export default function Editor({
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const { settings } = useSettingsContext();
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings; // keep ref in sync with latest settings
 
   const handleChange = useCallback(
     (v: string) => onChange(v),
@@ -206,7 +208,7 @@ export default function Editor({
       }
       const docText = state.doc.toString();
       // Check if cursor is inside a LaTeX block (only in Markdown mode)
-      if (settings.markdownMode && !isInsideLatexBlock(docText, pos)) {
+      if (settingsRef.current.markdownMode && !isInsideLatexBlock(docText, pos)) {
         window.dispatchEvent(new CustomEvent('syntax-warning', { detail: '请在 LaTeX 块内插入（$ 或 $$ 之间）' }));
         return;
       }
@@ -266,7 +268,7 @@ export default function Editor({
       }
       // Check if cursor is inside a LaTeX block (only in Markdown mode)
       const docText2 = state.doc.toString();
-      if (settings.markdownMode && !isInsideLatexBlock(docText2, pos)) {
+      if (settingsRef.current.markdownMode && !isInsideLatexBlock(docText2, pos)) {
         window.dispatchEvent(new CustomEvent('syntax-warning', { detail: '请在 LaTeX 块内插入（$ 或 $$ 之间）' }));
         return;
       }
