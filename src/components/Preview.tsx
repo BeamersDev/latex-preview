@@ -230,9 +230,11 @@ export default function Preview({ latex, onError, className = '', markdownScale 
         className="preview-content"
         ref={containerRef}
         onWheel={handleWheel}
-        style={{
-          '--markdown-scale': markdownScale ?? settings.markdownScale,
-        } as React.CSSProperties}
+        style={
+          settings.markdownMode
+            ? ({ '--markdown-scale': markdownScale ?? settings.markdownScale } as React.CSSProperties)
+            : undefined
+        }
       />
       {errorMessages.length > 0 && (
         <div className="preview-errors">
