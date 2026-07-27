@@ -34,8 +34,8 @@
     "codemirror": "^6.0.2",
     "html-to-image": "^1.11.11",
     "katex": "^0.17.0",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@codemirror/lang-xml": "^6.1.0",
