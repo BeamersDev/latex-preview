@@ -15,6 +15,7 @@ import {
   copySvgToClipboard,
   extractSvgString,
 } from '@/utils/export';
+import { evaluateLatex, formatResult } from '@/utils/evaluate';
 import type { EditorPosition } from '@/types';
 
 const DEFAULT_LATEX = '\\frac{x^2}{y}';
@@ -111,6 +112,15 @@ export default function App() {
     setErrorCount(errors.length);
   }, []);
 
+  // Evaluate current latex content on demand
+  const handleEvaluate = useCallback(() => {
+    const result = evaluateLatex(latex);
+    const detail = result.ok
+      ? `求值结果: ${formatResult(result.value!)}`
+      : `求值失败: ${result.error}`;
+    window.dispatchEvent(new CustomEvent('evaluate-result', { detail }));
+  }, [latex]);
+
   // Listen for Ctrl+S export events
   useEffect(() => {
     const pngHandler = () => handleExportPng();
@@ -127,6 +137,12 @@ export default function App() {
     window.addEventListener('export-file', handler);
     return () => window.removeEventListener('export-file', handler);
   }, [handleExportPng]);
+
+  // Evaluate button handler
+  useEffect(() => {
+    window.addEventListener('evaluate-latex', handleEvaluate);
+    return () => window.removeEventListener('evaluate-latex', handleEvaluate);
+  }, [handleEvaluate]);
 
   // Divider drag logic
   const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {

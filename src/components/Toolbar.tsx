@@ -49,6 +49,16 @@ export default function Toolbar({
 
           <div className="toolbar-separator" />
 
+          <button
+            className="toolbar-btn"
+            onClick={() => window.dispatchEvent(new Event('evaluate-latex'))}
+            title="数值求值：支持 \int、\sum、\prod"
+          >
+            🧮 求值
+          </button>
+
+          <div className="toolbar-separator" />
+
           <div className="toolbar-btn-wrapper">
             <button className="toolbar-btn" title="导出 / 复制">
               📤 导出

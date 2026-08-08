@@ -17,10 +17,18 @@ export default function StatusBar({ position, errorCount, katexLoaded }: StatusB
   useEffect(() => {
     const handler = (e: Event) => {
       setWarning((e as CustomEvent<string>).detail);
-      setTimeout(() => setWarning(''), 3000);
+      setTimeout(() => setWarning(''), 8000);
     };
     window.addEventListener('syntax-warning', handler as EventListener);
-    return () => window.removeEventListener('syntax-warning', handler as EventListener);
+    const evalHandler = (e: Event) => {
+      setWarning((e as CustomEvent<string>).detail);
+      setTimeout(() => setWarning(''), 8000);
+    };
+    window.addEventListener('evaluate-result', evalHandler as EventListener);
+    return () => {
+      window.removeEventListener('syntax-warning', handler as EventListener);
+      window.removeEventListener('evaluate-result', evalHandler as EventListener);
+    };
   }, []);
 
   return (
