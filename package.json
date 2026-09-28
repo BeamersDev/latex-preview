@@ -30,7 +30,7 @@
     "@codemirror/state": "^6.7.1",
     "@codemirror/view": "^6.43.6",
     "@tauri-apps/api": "^2.11.1",
-    "@tauri-apps/plugin-dialog": "^2.7.1",
+    "@tauri-apps/plugin-dialog": "^2.7.3",
     "codemirror": "^6.0.2",
     "html-to-image": "^1.11.11",
     "katex": "^0.17.0",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@codemirror/lang-xml": "^6.1.0",
-    "@tauri-apps/cli": "^2.11.4",
+    "@tauri-apps/cli": "^2.11.5",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^16.0.0",
     "@types/react": "^19.2.17",
